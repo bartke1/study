@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<pdmeta version="">
+  <header domain="" product="" release="" version="" revision=""/>
+  <managedObject>
+    <p name="value" maxOccurs="1">
+      <simpleType base="integer"/>
+    </p>
+  </managedObject>
+</pdmeta>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<pdmeta version="">
+  <header domain="" product="" release="" version="" revision=""/>
+  <managedObject class="NAME">
+    <p name="member" maxOccurs="1">
+      <simpleType base="string">
+        <minLength value="0"/>
+        <maxLength value="-1"/>
+      </simpleType>
+    </p>
+  </managedObject>
+</pdmeta>

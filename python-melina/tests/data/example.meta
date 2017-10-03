@@ -1,0 +1,49 @@
+/// pdmeta: "1.7", domain: "foo", product: "bar", release: "AX-19.2", version: "1.5.3.0.beta", revision: "1982713"
+
+/**
+ * This is an example managed object: The Machine.
+ */
+mo(cd) MACHINE_L -> SENSOR(1), WHEEL(12), ARM
+{
+    struct stateBox
+    {
+        repeated enum faultStatus { Empty, Disconnected, RoofFlewOff };
+        enum adminStatus { Locked, Unlocked };
+        enum availStatus [default = 1] { Online, Offline };  /// Enum can be documented too.
+    };
+
+    optional struct core
+    {
+        repeated enum types
+        {
+            T1 = 1,
+            T2 = 2,
+            42Val = 3,
+            000 = 4
+        };
+
+        /**
+         * This is the heart
+         * of the machine.
+         */
+        repeated struct numbers
+        {
+            int x [default = 0];
+            int(-12..42) xx [default = -4];
+            int(-0.0001, 0.0002, 0.0000001) xxx [default = -0.00007];
+            int(-1, 1, 0.01) xxxx [default = 0, units = "bazes"];
+            string y;
+            string(2..15) yy;
+            bool z [default = true];
+        };
+
+        // this comment is invisible
+        int a [units = ""];
+        int b [units = "petabytes"]; /* this one is invisible too */
+    };
+
+    repeated(42) bool x;  /** comment about something */
+
+    /// another comment
+    int y;
+};
