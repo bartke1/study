@@ -524,10 +524,7 @@ class GTEST_API_ UnitTestImpl {
   //                   this is not a typed or a type-parameterized test.
   //   set_up_tc:      pointer to the function that sets up the test case
   //   tear_down_tc:   pointer to the function that tears down the test case
-  TestCase* GetTestCase(const char* test_case_name,
-                        const char* type_param,
-                        Test::SetUpTestCaseFunc set_up_tc,
-                        Test::TearDownTestCaseFunc tear_down_tc);
+  TestCase* GetTestCase();
 
   // Adds a TestInfo to the unit test.
   //
@@ -536,13 +533,8 @@ class GTEST_API_ UnitTestImpl {
   //   set_up_tc:    pointer to the function that sets up the test case
   //   tear_down_tc: pointer to the function that tears down the test case
   //   test_info:    the TestInfo object
-  void AddTestInfo(Test::SetUpTestCaseFunc set_up_tc,
-                   Test::TearDownTestCaseFunc tear_down_tc,
-                   TestInfo* test_info) {
-    GetTestCase(test_info->test_case_name(),
-                test_info->type_param(),
-                set_up_tc,
-                tear_down_tc)->AddTestInfo(test_info);
+  void AddTestInfo(TestInfo* test_info) {
+    GetTestCase()->AddTestInfo(test_info);
   }
 
 #if GTEST_HAS_PARAM_TEST

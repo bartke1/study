@@ -1989,9 +1989,8 @@ namespace internal {
 //                     ownership of the factory object.
 TestInfo* MakeAndRegisterTestInfo(TestFactoryBase* factory)
 {
-  TestInfo* const test_info = new TestInfo("", "", 0, 0, 0, factory);
-  GetUnitTestImpl()->AddTestInfo(0, 0, test_info);
-  return test_info;
+  UnitTest::GetInstance()->impl()->AddTestInfo(new TestInfo("", "", 0, 0, 0, factory));
+  return 0;
 }
 
 }  // namespace internal
@@ -2157,7 +2156,6 @@ TestInfo* TestCase::GetMutableTestInfo(int i) {
 // destruction of the TestCase object.
 void TestCase::AddTestInfo(TestInfo * test_info) {
   test_info_list_.push_back(test_info);
-  test_indices_.push_back(static_cast<int>(test_indices_.size()));
 }
 
 // Runs every test in this TestCase.
@@ -3196,13 +3194,9 @@ UnitTestImpl::~UnitTestImpl() {
 //                   this is not a typed or a type-parameterized test case.
 //   set_up_tc:      pointer to the function that sets up the test case
 //   tear_down_tc:   pointer to the function that tears down the test case
-TestCase* UnitTestImpl::GetTestCase(const char* test_case_name,
-                                    const char* type_param,
-                                    Test::SetUpTestCaseFunc set_up_tc,
-                                    Test::TearDownTestCaseFunc tear_down_tc) {
-  TestCase* const new_test_case = new TestCase(test_case_name, type_param, set_up_tc, tear_down_tc);
+TestCase* UnitTestImpl::GetTestCase() {
+  TestCase* const new_test_case = new TestCase("", 0, 0, 0);
   test_cases_.push_back(new_test_case);
-  test_case_indices_.push_back(0);
   return new_test_case;
 }
 
