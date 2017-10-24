@@ -2283,28 +2283,8 @@ void TestCase::AddTestInfo(TestInfo * test_info) {
 
 // Runs every test in this TestCase.
 void TestCase::Run() {
-  if (!should_run_) return;
-
-  internal::UnitTestImpl* const impl = internal::GetUnitTestImpl();
-  impl->set_current_test_case(this);
-
-  TestEventListener* repeater = UnitTest::GetInstance()->listeners().repeater();
-
-  repeater->OnTestCaseStart(*this);
-  internal::HandleExceptionsInMethodIfSupported(
-      this, &TestCase::RunSetUpTestCase, "SetUpTestCase()");
-
-  const internal::TimeInMillis start = internal::GetTimeInMillis();
-  for (int i = 0; i < total_test_count(); i++) {
-    GetMutableTestInfo(i)->Run();
-  }
-  elapsed_time_ = internal::GetTimeInMillis() - start;
-
-  internal::HandleExceptionsInMethodIfSupported(
-      this, &TestCase::RunTearDownTestCase, "TearDownTestCase()");
-
-  repeater->OnTestCaseEnd(*this);
-  impl->set_current_test_case(NULL);
+  internal::GetUnitTestImpl()->set_current_test_case(this);
+  test_info_list_[0]->Run();
 }
 
 // Clears the results of all tests in this test case.
