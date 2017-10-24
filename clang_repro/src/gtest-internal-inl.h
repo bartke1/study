@@ -473,8 +473,6 @@ class DefaultGlobalTestPartResultReporter
 class GTEST_API_ UnitTestImpl {
  public:
   UnitTestImpl(UnitTest* parent)
-      : current_test_case_(NULL),
-        current_test_info_(NULL)
   {}
 
   TestCase* GetTestCase();
@@ -483,24 +481,10 @@ class GTEST_API_ UnitTestImpl {
     GetTestCase()->AddTestInfo(test_info);
   }
 
-  void set_current_test_case(TestCase* a_current_test_case) {
-    current_test_case_ = a_current_test_case;
-  }
-
-  void set_current_test_info(TestInfo* a_current_test_info) {
-    current_test_info_ = a_current_test_info;
-  }
-
   bool RunAllTests();
   int FilterTests();
 
-  const TestCase* current_test_case() const { return current_test_case_; }
-  TestInfo* current_test_info() { return current_test_info_; }
-  const TestInfo* current_test_info() const { return current_test_info_; }
-
   std::vector<TestCase*> test_cases_;
-  TestCase* current_test_case_;
-  TestInfo* current_test_info_;
 };  // class UnitTestImpl
 
 // Convenience function for accessing the global UnitTest
