@@ -475,78 +475,9 @@ class GTEST_API_ UnitTestImpl {
   explicit UnitTestImpl(UnitTest* parent);
   virtual ~UnitTestImpl();
 
-  // There are two different ways to register your own TestPartResultReporter.
-  // You can register your own repoter to listen either only for test results
-  // from the current thread or for results from all threads.
-  // By default, each per-thread test result repoter just passes a new
-  // TestPartResult to the global test result reporter, which registers the
-  // test part result for the currently running test.
-
-  // Sets the global test part result reporter.
-  void SetGlobalTestPartResultReporter(
-      TestPartResultReporterInterface* reporter);
-
-  // Gets the number of successful test cases.
-  int successful_test_case_count() const;
-
-  // Gets the number of failed test cases.
-  int failed_test_case_count() const;
-
-  // Gets the number of all test cases.
-  int total_test_case_count() const;
-
-  // Gets the number of all test cases that contain at least one test
-  // that should run.
-  int test_case_to_run_count() const;
-
-  // Gets the number of successful tests.
-  int successful_test_count() const;
-
-  // Gets the number of failed tests.
-  int failed_test_count() const;
-
-  // Gets the number of disabled tests that will be reported in the XML report.
-  int reportable_disabled_test_count() const;
-
-  // Gets the number of disabled tests.
-  int disabled_test_count() const;
-
-  // Gets the number of tests to be printed in the XML report.
-  int reportable_test_count() const;
-
-  // Gets the number of all tests.
-  int total_test_count() const;
-
-  // Gets the number of tests that should run.
-  int test_to_run_count() const;
-
-  // Gets the time of the test program start, in ms from the start of the
-  // UNIX epoch.
-  TimeInMillis start_timestamp() const { return start_timestamp_; }
-
-  // Gets the elapsed time, in milliseconds.
-  TimeInMillis elapsed_time() const { return elapsed_time_; }
-
-  // Returns true iff the unit test passed (i.e. all test cases passed).
-  bool Passed() const { return !Failed(); }
-
-  // Returns true iff the unit test failed (i.e. some test case failed
-  // or something outside of all tests failed).
-  bool Failed() const {
-    return failed_test_case_count() > 0 || ad_hoc_test_result()->Failed();
-  }
-
-  // Gets the i-th test case among all the test cases. i can range from 0 to
-  // total_test_case_count() - 1. If i is not in that range, returns NULL.
   const TestCase* GetTestCase(int i) const {
     const int index = GetElementOr(test_case_indices_, i, -1);
     return index < 0 ? NULL : test_cases_[i];
-  }
-
-  // Gets the i-th test case among all the test cases. i can range from 0 to
-  // total_test_case_count() - 1. If i is not in that range, returns NULL.
-  TestCase* GetMutableTestCase(int i) {
-      return test_cases_[0];
   }
 
   // Provides access to the event listener list.

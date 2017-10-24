@@ -1377,43 +1377,6 @@ internal::CartesianProductHolder10<Generator1, Generator2, Generator3,
 
 
 
-# define TEST_P(test_case_name, test_name) \
-  class GTEST_TEST_CLASS_NAME_(test_case_name, test_name) \
-      : public test_case_name { \
-   public: \
-    GTEST_TEST_CLASS_NAME_(test_case_name, test_name)() {} \
-    virtual void TestBody(); \
-   public: \
-    static int AddToRegistry() { \
-      ::testing::UnitTest::GetInstance()->parameterized_test_registry(). \
-          GetTestCasePatternHolder<test_case_name>(\
-              #test_case_name, __FILE__, __LINE__)->AddTestPattern(\
-                  #test_case_name, \
-                  #test_name, \
-                  new ::testing::internal::TestMetaFactory< \
-                      GTEST_TEST_CLASS_NAME_(test_case_name, test_name)>()); \
-      return 0; \
-    } \
-    static int gtest_registering_dummy_; \
-    GTEST_DISALLOW_COPY_AND_ASSIGN_(\
-        GTEST_TEST_CLASS_NAME_(test_case_name, test_name)); \
-  }; \
-  int GTEST_TEST_CLASS_NAME_(test_case_name, \
-                             test_name)::gtest_registering_dummy_ = \
-      GTEST_TEST_CLASS_NAME_(test_case_name, test_name)::AddToRegistry(); \
-  void GTEST_TEST_CLASS_NAME_(test_case_name, test_name)::TestBody()
-
-# define INSTANTIATE_TEST_CASE_P(prefix, test_case_name, generator) \
-  ::testing::internal::ParamGenerator<test_case_name::ParamType> \
-      gtest_##prefix##test_case_name##_EvalGenerator_() { return generator; } \
-  int gtest_##prefix##test_case_name##_dummy_ = \
-      ::testing::UnitTest::GetInstance()->parameterized_test_registry(). \
-          GetTestCasePatternHolder<test_case_name>(\
-              #test_case_name, __FILE__, __LINE__)->AddTestCaseInstantiation(\
-                  #prefix, \
-                  &gtest_##prefix##test_case_name##_EvalGenerator_, \
-                  __FILE__, __LINE__)
-
 }  // namespace testing
 
 #endif  // GTEST_HAS_PARAM_TEST

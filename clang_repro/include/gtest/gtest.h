@@ -1104,40 +1104,6 @@ struct GTEST_API_ UnitTest {
       GTEST_LOCK_EXCLUDED_(mutex_);
 #endif  // GTEST_HAS_PARAM_TEST
 
-  // Gets the number of successful test cases.
-  int successful_test_case_count() const;
-
-  // Gets the number of failed test cases.
-  int failed_test_case_count() const;
-
-  // Gets the number of all test cases.
-  int total_test_case_count() const;
-
-  // Gets the number of all test cases that contain at least one test
-  // that should run.
-  int test_case_to_run_count() const;
-
-  // Gets the number of successful tests.
-  int successful_test_count() const;
-
-  // Gets the number of failed tests.
-  int failed_test_count() const;
-
-  // Gets the number of disabled tests that will be reported in the XML report.
-  int reportable_disabled_test_count() const;
-
-  // Gets the number of disabled tests.
-  int disabled_test_count() const;
-
-  // Gets the number of tests to be printed in the XML report.
-  int reportable_test_count() const;
-
-  // Gets the number of all tests.
-  int total_test_count() const;
-
-  // Gets the number of tests that should run.
-  int test_to_run_count() const;
-
   // Gets the time of the test program start, in ms from the start of the
   // UNIX epoch.
   TimeInMillis start_timestamp() const;
@@ -1159,10 +1125,6 @@ struct GTEST_API_ UnitTest {
   // Returns the TestResult containing information on test failures and
   // properties logged outside of individual test cases.
   const TestResult& ad_hoc_test_result() const;
-
-  // Returns the list of event listeners that can be used to track events
-  // inside Google Test.
-  TestEventListeners& listeners();
 
   // Registers and returns a global test environment.  When a test
   // program is run, all global test environments will be set-up in

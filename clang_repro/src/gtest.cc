@@ -613,63 +613,6 @@ void DefaultGlobalTestPartResultReporter::ReportTestPartResult(
   unit_test_->listeners()->repeater()->OnTestPartResult(result);
 }
 
-// Gets the number of successful test cases.
-int UnitTestImpl::successful_test_case_count() const {
-  return CountIf(test_cases_, TestCasePassed);
-}
-
-// Gets the number of failed test cases.
-int UnitTestImpl::failed_test_case_count() const {
-  return CountIf(test_cases_, TestCaseFailed);
-}
-
-// Gets the number of all test cases.
-int UnitTestImpl::total_test_case_count() const {
-  return static_cast<int>(test_cases_.size());
-}
-
-// Gets the number of all test cases that contain at least one test
-// that should run.
-int UnitTestImpl::test_case_to_run_count() const {
-  return CountIf(test_cases_, ShouldRunTestCase);
-}
-
-// Gets the number of successful tests.
-int UnitTestImpl::successful_test_count() const {
-  return SumOverTestCaseList(test_cases_, &TestCase::successful_test_count);
-}
-
-// Gets the number of failed tests.
-int UnitTestImpl::failed_test_count() const {
-  return SumOverTestCaseList(test_cases_, &TestCase::failed_test_count);
-}
-
-// Gets the number of disabled tests that will be reported in the XML report.
-int UnitTestImpl::reportable_disabled_test_count() const {
-  return SumOverTestCaseList(test_cases_,
-                             &TestCase::reportable_disabled_test_count);
-}
-
-// Gets the number of disabled tests.
-int UnitTestImpl::disabled_test_count() const {
-  return SumOverTestCaseList(test_cases_, &TestCase::disabled_test_count);
-}
-
-// Gets the number of tests to be printed in the XML report.
-int UnitTestImpl::reportable_test_count() const {
-  return SumOverTestCaseList(test_cases_, &TestCase::reportable_test_count);
-}
-
-// Gets the number of all tests.
-int UnitTestImpl::total_test_count() const {
-  return SumOverTestCaseList(test_cases_, &TestCase::total_test_count);
-}
-
-// Gets the number of tests that should run.
-int UnitTestImpl::test_to_run_count() const {
-  return SumOverTestCaseList(test_cases_, &TestCase::test_to_run_count);
-}
-
 // Returns the current OS stack trace as an std::string.
 //
 // The maximum number of stack frames to be included is specified by
@@ -2020,13 +1963,12 @@ void Test::Run() {
 
 // Returns true iff the current test has a fatal failure.
 bool Test::HasFatalFailure() {
-  return internal::GetUnitTestImpl()->current_test_result()->HasFatalFailure();
+  return false;
 }
 
 // Returns true iff the current test has a non-fatal failure.
 bool Test::HasNonfatalFailure() {
-  return internal::GetUnitTestImpl()->current_test_result()->
-      HasNonfatalFailure();
+    return false;
 }
 
 // class TestInfo
@@ -2135,11 +2077,6 @@ void TestInfo::Run() {
   internal::UnitTestImpl* const impl = internal::GetUnitTestImpl();
   impl->set_current_test_info(this);
 
-  TestEventListener* repeater = UnitTest::GetInstance()->listeners().repeater();
-
-  // Notifies the unit test event listeners that a test is about to start.
-  repeater->OnTestStart(*this);
-
   const TimeInMillis start = internal::GetTimeInMillis();
 
   // Creates the test object.
@@ -2160,9 +2097,6 @@ void TestInfo::Run() {
       test, &Test::DeleteSelf_, "the test fixture's destructor");
 
   result_.set_elapsed_time(internal::GetTimeInMillis() - start);
-
-  // Notifies the unit test event listener that a test has just finished.
-  repeater->OnTestEnd(*this);
 
   // Tells UnitTest to stop associating assertion results to this
   // test.
@@ -2598,27 +2532,6 @@ void PrettyUnitTestResultPrinter::OnEnvironmentsTearDownStart(
 
 // Internal helper for printing the list of failed tests.
 void PrettyUnitTestResultPrinter::PrintFailedTests(const UnitTest& unit_test) {
-  const int failed_test_count = unit_test.failed_test_count();
-  if (failed_test_count == 0) {
-    return;
-  }
-
-  for (int i = 0; i < unit_test.total_test_case_count(); ++i) {
-    const TestCase& test_case = *unit_test.GetTestCase(i);
-    if (!test_case.should_run() || (test_case.failed_test_count() == 0)) {
-      continue;
-    }
-    for (int j = 0; j < test_case.total_test_count(); ++j) {
-      const TestInfo& test_info = *test_case.GetTestInfo(j);
-      if (!test_info.should_run() || test_info.result()->Passed()) {
-        continue;
-      }
-      ColoredPrintf(COLOR_RED, "[  FAILED  ] ");
-      printf("%s.%s", test_case.name(), test_info.name());
-      PrintFullTestCommentIfPresent(test_info);
-      printf("\n");
-    }
-  }
 }
 
 // End PrettyUnitTestResultPrinter
@@ -3267,80 +3180,10 @@ UnitTest* UnitTest::GetInstance() {
 #endif  // (_MSC_VER == 1310 && !defined(_DEBUG)) || defined(__BORLANDC__)
 }
 
-// Gets the number of successful test cases.
-int UnitTest::successful_test_case_count() const {
-  return impl()->successful_test_case_count();
-}
-
-// Gets the number of failed test cases.
-int UnitTest::failed_test_case_count() const {
-  return impl()->failed_test_case_count();
-}
-
-// Gets the number of all test cases.
-int UnitTest::total_test_case_count() const {
-  return impl()->total_test_case_count();
-}
-
-// Gets the number of all test cases that contain at least one test
-// that should run.
-int UnitTest::test_case_to_run_count() const {
-  return impl()->test_case_to_run_count();
-}
-
-// Gets the number of successful tests.
-int UnitTest::successful_test_count() const {
-  return impl()->successful_test_count();
-}
-
-// Gets the number of failed tests.
-int UnitTest::failed_test_count() const { return impl()->failed_test_count(); }
-
-// Gets the number of disabled tests that will be reported in the XML report.
-int UnitTest::reportable_disabled_test_count() const {
-  return impl()->reportable_disabled_test_count();
-}
-
-// Gets the number of disabled tests.
-int UnitTest::disabled_test_count() const {
-  return impl()->disabled_test_count();
-}
-
-// Gets the number of tests to be printed in the XML report.
-int UnitTest::reportable_test_count() const {
-  return impl()->reportable_test_count();
-}
-
-// Gets the number of all tests.
-int UnitTest::total_test_count() const { return impl()->total_test_count(); }
-
-// Gets the number of tests that should run.
-int UnitTest::test_to_run_count() const { return impl()->test_to_run_count(); }
-
-// Returns true iff the unit test passed (i.e. all test cases passed).
-bool UnitTest::Passed() const { return impl()->Passed(); }
-
-// Returns true iff the unit test failed (i.e. some test case failed
-// or something outside of all tests failed).
-bool UnitTest::Failed() const { return impl()->Failed(); }
-
 // Gets the i-th test case among all the test cases. i can range from 0 to
 // total_test_case_count() - 1. If i is not in that range, returns NULL.
 const TestCase* UnitTest::GetTestCase(int i) const {
   return impl()->GetTestCase(i);
-}
-
-// Returns the TestResult containing information on test failures and
-// properties logged outside of individual test cases.
-const TestResult& UnitTest::ad_hoc_test_result() const {
-  return *impl()->ad_hoc_test_result();
-}
-
-
-// Returns the list of event listeners that can be used to track events
-// inside Google Test.
-TestEventListeners& UnitTest::listeners() {
-  return *impl()->listeners();
 }
 
 // Registers and returns a global test environment.  When a test
@@ -3417,44 +3260,8 @@ UnitTestImpl::UnitTestImpl(UnitTest* parent)
 }
 
 UnitTestImpl::~UnitTestImpl() {
-  // Deletes every TestCase.
-  ForEach(test_cases_, internal::Delete<TestCase>);
-
-  // Deletes every Environment.
-  ForEach(environments_, internal::Delete<Environment>);
-
-  delete os_stack_trace_getter_;
 }
 
-void UnitTestImpl::ConfigureXmlOutput() {
-}
-
-void UnitTestImpl::ConfigureStreamingOutput() {
-}
-
-
-// A predicate that checks the name of a TestCase against a known
-// value.
-//
-// This is used for implementation of the UnitTest class only.  We put
-// it in the anonymous namespace to prevent polluting the outer
-// namespace.
-//
-// TestCaseNameIs is copyable.
-class TestCaseNameIs {
- public:
-  // Constructor.
-  explicit TestCaseNameIs(const std::string& name)
-      : name_(name) {}
-
-  // Returns true iff the name of test_case matches name_.
-  bool operator()(const TestCase* test_case) const {
-    return test_case != NULL && strcmp(test_case->name(), name_.c_str()) == 0;
-  }
-
- public:
-  std::string name_;
-};
 
 // Finds and returns a TestCase with the given name.  If one doesn't
 // exist, creates one and returns it.  It's the CALLER'S
@@ -3472,34 +3279,9 @@ TestCase* UnitTestImpl::GetTestCase(const char* test_case_name,
                                     const char* type_param,
                                     Test::SetUpTestCaseFunc set_up_tc,
                                     Test::TearDownTestCaseFunc tear_down_tc) {
-  // Can we find a TestCase with the given name?
-  const std::vector<TestCase*>::const_iterator test_case =
-      std::find_if(test_cases_.begin(), test_cases_.end(),
-                   TestCaseNameIs(test_case_name));
-
-  if (test_case != test_cases_.end())
-    return *test_case;
-
-  // No.  Let's create one.
-  TestCase* const new_test_case =
-      new TestCase(test_case_name, type_param, set_up_tc, tear_down_tc);
-
-  // Is this a death test case?
-  if (internal::UnitTestOptions::MatchesFilter(test_case_name,
-                                               kDeathTestCaseFilter)) {
-    // Yes.  Inserts the test case after the last death test case
-    // defined so far.  This only works when the test cases haven't
-    // been shuffled.  Otherwise we may end up running a death test
-    // after a non-death test.
-    ++last_death_test_case_;
-    test_cases_.insert(test_cases_.begin() + last_death_test_case_,
-                       new_test_case);
-  } else {
-    // No.  Appends to the end of the list.
-    test_cases_.push_back(new_test_case);
-  }
-
-  test_case_indices_.push_back(static_cast<int>(test_case_indices_.size()));
+  TestCase* const new_test_case = new TestCase(test_case_name, type_param, set_up_tc, tear_down_tc);
+  test_cases_.push_back(new_test_case);
+  test_case_indices_.push_back(0);
   return new_test_case;
 }
 
@@ -3530,24 +3312,6 @@ int UnitTestImpl::FilterTests(ReactionToSharding shard_tests) {
     TestInfo* const test_info = test_case->test_info_list_[0];
     test_info->should_run_ = true;
     return 1;
-}
-
-// Returns the current OS stack trace getter if it is not NULL;
-// otherwise, creates an OsStackTraceGetter, makes it the current
-// getter, and returns it.
-OsStackTraceGetterInterface* UnitTestImpl::os_stack_trace_getter() {
-  if (os_stack_trace_getter_ == NULL) {
-    os_stack_trace_getter_ = new OsStackTraceGetter;
-  }
-
-  return os_stack_trace_getter_;
-}
-
-// Returns the TestResult for the test that's currently running, or
-// the TestResult for the ad hoc test if no test is running.
-TestResult* UnitTestImpl::current_test_result() {
-  return current_test_info_ ?
-      &(current_test_info_->result_) : &ad_hoc_test_result_;
 }
 
 // Used by the GTEST_SUPPRESS_UNREACHABLE_CODE_WARNING_BELOW_ macro to
