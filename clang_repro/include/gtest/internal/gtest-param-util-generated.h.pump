@@ -80,7 +80,7 @@ class ValueArray1 {
   template <typename T>
   operator ParamGenerator<T>() const { return ValuesIn(&v1_, &v1_ + 1); }
 
- private:
+ public:
   // No implementation - assignment is unsupported.
   void operator=(const ValueArray1& other);
 
@@ -102,7 +102,7 @@ class ValueArray$i {
     return ValuesIn(array);
   }
 
- private:
+ public:
   // No implementation - assignment is unsupported.
   void operator=(const ValueArray$i& other);
 
@@ -143,7 +143,7 @@ class CartesianProductGenerator$i
     return new Iterator(this, $for j, [[g$(j)_, g$(j)_.end()]]);
   }
 
- private:
+ public:
   class Iterator : public ParamIteratorInterface<ParamType> {
    public:
     Iterator(const ParamGeneratorInterface<ParamType>* base, $for j, [[
@@ -199,7 +199,7 @@ $for k [[
 ]]);
     }
 
-   private:
+   public:
     Iterator(const Iterator& other)
         : base_(other.base_), $for j, [[
 
@@ -278,7 +278,7 @@ $for j,[[
 ]]));
   }
 
- private:
+ public:
   // No implementation - assignment is unsupported.
   void operator=(const CartesianProductHolder$i& other);
 

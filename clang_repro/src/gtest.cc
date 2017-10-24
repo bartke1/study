@@ -2104,7 +2104,7 @@ class TestNameIs {
     return test_info && test_info->name() == name_;
   }
 
- private:
+ public:
   std::string name_;
 };
 
@@ -2515,7 +2515,7 @@ class PrettyUnitTestResultPrinter : public TestEventListener {
   virtual void OnEnvironmentsTearDownEnd(const UnitTest& /*unit_test*/) {}
   virtual void OnTestProgramEnd(const UnitTest& /*unit_test*/) {}
 
- private:
+ public:
   static void PrintFailedTests(const UnitTest& unit_test);
 };
 
@@ -2650,7 +2650,7 @@ class TestEventRepeater : public TestEventListener {
   virtual void OnEnvironmentsTearDownEnd(const UnitTest& unit_test);
   virtual void OnTestProgramEnd(const UnitTest& unit_test);
 
- private:
+ public:
   // Controls whether events will be forwarded to listeners_. Set to false
   // in death test child processes.
   bool forwarding_enabled_;
@@ -2723,7 +2723,7 @@ class XmlUnitTestResultPrinter : public EmptyTestEventListener {
  public:
   explicit XmlUnitTestResultPrinter(const char* output_file);
 
- private:
+ public:
   // Is c a whitespace character that is normalized to a space character
   // when it appears in an XML attribute value?
   static bool IsNormalizableWhitespace(char c) {
@@ -3193,7 +3193,7 @@ class ScopedPrematureExitFile {
     }
   }
 
- private:
+ public:
   const char* const premature_exit_filepath_;
 
   GTEST_DISALLOW_COPY_AND_ASSIGN_(ScopedPrematureExitFile);
@@ -3295,7 +3295,7 @@ UnitTest* UnitTest::GetInstance() {
 
   // CodeGear C++Builder insists on a public destructor for the
   // default implementation.  Use this implementation to keep good OO
-  // design with private destructor.
+  // design with public destructor.
 
 #if (_MSC_VER == 1310 && !defined(_DEBUG)) || defined(__BORLANDC__)
   static UnitTest* const instance = new UnitTest;
@@ -3567,7 +3567,7 @@ class TestCaseNameIs {
     return test_case != NULL && strcmp(test_case->name(), name_.c_str()) == 0;
   }
 
- private:
+ public:
   std::string name_;
 };
 
@@ -3663,53 +3663,10 @@ Int32 Int32FromEnvOrDie(const char* var, Int32 default_val) {
 // http://code.google.com/p/googletest/wiki/GoogleTestAdvancedGuide.
 // Returns the number of tests that should run.
 int UnitTestImpl::FilterTests(ReactionToSharding shard_tests) {
-  const Int32 total_shards = shard_tests == HONOR_SHARDING_PROTOCOL ?
-      Int32FromEnvOrDie(kTestTotalShards, -1) : -1;
-  const Int32 shard_index = shard_tests == HONOR_SHARDING_PROTOCOL ?
-      Int32FromEnvOrDie(kTestShardIndex, -1) : -1;
-
-  // num_runnable_tests are the number of tests that will
-  // run across all shards (i.e., match filter and are not disabled).
-  // num_selected_tests are the number of tests to be run on
-  // this shard.
-  int num_runnable_tests = 0;
-  int num_selected_tests = 0;
-  for (size_t i = 0; i < test_cases_.size(); i++) {
-    TestCase* const test_case = test_cases_[i];
-    const std::string &test_case_name = test_case->name();
-    test_case->set_should_run(false);
-
-    for (size_t j = 0; j < test_case->test_info_list().size(); j++) {
-      TestInfo* const test_info = test_case->test_info_list()[j];
-      const std::string test_name(test_info->name());
-      // A test is disabled if test case name or test name matches
-      // kDisableTestFilter.
-      const bool is_disabled =
-          internal::UnitTestOptions::MatchesFilter(test_case_name,
-                                                   kDisableTestFilter) ||
-          internal::UnitTestOptions::MatchesFilter(test_name,
-                                                   kDisableTestFilter);
-      test_info->is_disabled_ = is_disabled;
-
-      const bool matches_filter =
-          internal::UnitTestOptions::FilterMatchesTest(test_case_name,
-                                                       test_name);
-      test_info->matches_filter_ = matches_filter;
-
-      const bool is_runnable =
-          (GTEST_FLAG(also_run_disabled_tests) || !is_disabled) &&
-          matches_filter;
-
-      const bool is_selected = true;
-
-      num_runnable_tests += is_runnable;
-      num_selected_tests += is_selected;
-
-      test_info->should_run_ = is_selected;
-      test_case->set_should_run(test_case->should_run() || is_selected);
-    }
-  }
-  return num_selected_tests;
+    TestCase* const test_case = test_cases_[0];
+    TestInfo* const test_info = test_case->test_info_list()[0];
+    test_info->should_run_ = true;
+    return 1;
 }
 
 // Prints the given C-string on a single line by replacing all '\n'

@@ -165,7 +165,7 @@ class GTEST_API_ ScopedTrace {
   // Don't inherit from ScopedTrace!
   ~ScopedTrace();
 
- private:
+ public:
   GTEST_DISALLOW_COPY_AND_ASSIGN_(ScopedTrace);
 } GTEST_ATTRIBUTE_UNUSED_;  // A ScopedTrace object does its job in its
                             // c'tor and d'tor.  Therefore it doesn't
@@ -334,7 +334,7 @@ class FloatingPoint {
         <= kMaxUlps;
   }
 
- private:
+ public:
   // The data type used to store the actual floating-point number.
   union FloatingPointUnion {
     RawType value_;  // The raw floating-point number.
@@ -442,7 +442,7 @@ class TestFactoryBase {
  protected:
   TestFactoryBase() {}
 
- private:
+ public:
   GTEST_DISALLOW_COPY_AND_ASSIGN_(TestFactoryBase);
 };
 
@@ -525,7 +525,7 @@ class GTEST_API_ TypedTestCasePState {
   const char* VerifyRegisteredTestNames(
       const char* file, int line, const char* registered_tests);
 
- private:
+ public:
   bool registered_;
   ::std::set<const char*> defined_test_names_;
 };
@@ -670,7 +670,7 @@ class GTEST_API_ Random {
   // 0 or greater than kMaxRange.
   UInt32 Generate(UInt32 range);
 
- private:
+ public:
   UInt32 state_;
   GTEST_DISALLOW_COPY_AND_ASSIGN_(Random);
 };
@@ -762,7 +762,7 @@ struct AddReference<T&> { typedef T& type; };  // NOLINT
 // type To.
 template <typename From, typename To>
 class ImplicitlyConvertible {
- private:
+ public:
   // We need the following helper functions only for their types.
   // They have no implementations.
 
@@ -784,7 +784,7 @@ class ImplicitlyConvertible {
   static char Helper(To);
   static char (&Helper(...))[2];  // NOLINT
 
-  // We have to put the 'public' section after the 'private' section,
+  // We have to put the 'public' section after the 'public' section,
   // or MSVC refuses to compile the code.
  public:
   // MSVC warns about implicitly converting from double to int for
@@ -981,7 +981,7 @@ class NativeArray {
         ArrayEq(begin(), size(), rhs.begin());
   }
 
- private:
+ public:
   // Initializes this object; makes a copy of the input array if
   // 'relation' is kCopy.
   void Init(const Element* array, size_t a_size, RelationToSource relation) {
@@ -1122,7 +1122,7 @@ class NativeArray {
 class GTEST_TEST_CLASS_NAME_(test_case_name, test_name) : public parent_class {\
  public:\
   GTEST_TEST_CLASS_NAME_(test_case_name, test_name)() {}\
- private:\
+ public:\
   virtual void TestBody();\
   static ::testing::TestInfo* const test_info_ GTEST_ATTRIBUTE_UNUSED_;\
   GTEST_DISALLOW_COPY_AND_ASSIGN_(\

@@ -130,7 +130,7 @@ class ParamIterator {
     return !(*this == other);
   }
 
- private:
+ public:
   friend class ParamGenerator<T>;
   explicit ParamIterator(ParamIteratorInterface<T>* impl) : impl_(impl) {}
   scoped_ptr<ParamIteratorInterface<T> > impl_;
@@ -171,7 +171,7 @@ class ParamGenerator {
   iterator begin() const { return iterator(impl_->Begin()); }
   iterator end() const { return iterator(impl_->End()); }
 
- private:
+ public:
   linked_ptr<const ParamGeneratorInterface<T> > impl_;
 };
 
@@ -194,7 +194,7 @@ class RangeGenerator : public ParamGeneratorInterface<T> {
     return new Iterator(this, end_, end_index_, step_);
   }
 
- private:
+ public:
   class Iterator : public ParamIteratorInterface<T> {
    public:
     Iterator(const ParamGeneratorInterface<T>* base, T value, int index,
@@ -224,7 +224,7 @@ class RangeGenerator : public ParamGeneratorInterface<T> {
       return index_ == other_index;
     }
 
-   private:
+   public:
     Iterator(const Iterator& other)
         : ParamIteratorInterface<T>(),
           base_(other.base_), value_(other.value_), index_(other.index_),
@@ -279,7 +279,7 @@ class ValuesInIteratorRangeGenerator : public ParamGeneratorInterface<T> {
     return new Iterator(this, container_.end());
   }
 
- private:
+ public:
   typedef typename ::std::vector<T> ContainerType;
 
   class Iterator : public ParamIteratorInterface<T> {
@@ -321,7 +321,7 @@ class ValuesInIteratorRangeGenerator : public ParamGeneratorInterface<T> {
           CheckedDowncastToActualType<const Iterator>(&other)->iterator_;
     }
 
-   private:
+   public:
     Iterator(const Iterator& other)
           // The explicit constructor call suppresses a false warning
           // emitted by gcc when supplied with the -Wextra option.
@@ -360,7 +360,7 @@ class ParameterizedTestFactory : public TestFactoryBase {
     return new TestClass();
   }
 
- private:
+ public:
   const ParamType parameter_;
 
   GTEST_DISALLOW_COPY_AND_ASSIGN_(ParameterizedTestFactory);
@@ -398,7 +398,7 @@ class TestMetaFactory
     return new ParameterizedTestFactory<TestCase>(parameter);
   }
 
- private:
+ public:
   GTEST_DISALLOW_COPY_AND_ASSIGN_(TestMetaFactory);
 };
 
@@ -429,7 +429,7 @@ class ParameterizedTestCaseInfoBase {
  protected:
   ParameterizedTestCaseInfoBase() {}
 
- private:
+ public:
   GTEST_DISALLOW_COPY_AND_ASSIGN_(ParameterizedTestCaseInfoBase);
 };
 
@@ -443,7 +443,7 @@ class ParameterizedTestCaseInfoBase {
 template <class TestCase>
 class ParameterizedTestCaseInfo : public ParameterizedTestCaseInfoBase {
  public:
-  // ParamType and GeneratorCreationFunc are private types but are required
+  // ParamType and GeneratorCreationFunc are public types but are required
   // for declarations of public methods AddTestPattern() and
   // AddTestCaseInstantiation().
   typedef typename TestCase::ParamType ParamType;
@@ -512,7 +512,7 @@ class ParameterizedTestCaseInfo : public ParameterizedTestCaseInfoBase {
     }  // for test_it
   }  // RegisterTests
 
- private:
+ public:
   // LocalTestInfo structure keeps information about a single test registered
   // with TEST_P macro.
   struct TestInfo {
@@ -596,7 +596,7 @@ class ParameterizedTestCaseRegistry {
     }
   }
 
- private:
+ public:
   typedef ::std::vector<ParameterizedTestCaseInfoBase*> TestCaseInfoContainer;
 
   TestCaseInfoContainer test_case_infos_;

@@ -153,7 +153,7 @@ class GTEST_API_ String {
   // Formats a byte as "%02X".
   static std::string FormatByte(unsigned char value);
 
- private:
+ public:
   String();  // Not meant to be instantiated.
 };  // class String
 

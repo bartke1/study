@@ -202,7 +202,7 @@ class GTestFlagSaver {
     GTEST_FLAG(throw_on_failure) = throw_on_failure_;
   }
 
- private:
+ public:
   // Fields for saving the original values of flags.
   bool also_run_disabled_tests_;
   bool break_on_failure_;
@@ -355,7 +355,7 @@ class TestPropertyKeyIs {
     return test_property.key() == key_;
   }
 
- private:
+ public:
   std::string key_;
 };
 
@@ -419,7 +419,7 @@ class OsStackTraceGetterInterface {
   OsStackTraceGetterInterface() {}
   virtual ~OsStackTraceGetterInterface() {}
 
- private:
+ public:
   GTEST_DISALLOW_COPY_AND_ASSIGN_(OsStackTraceGetterInterface);
 };
 
@@ -432,7 +432,7 @@ class OsStackTraceGetter : public OsStackTraceGetterInterface {
   // Google Test's implementation.
   static const char* const kElidedFramesMarker;
 
- private:
+ public:
 
   // We save the stack frame below the frame that calls user code.
   // We do this because the address of the frame immediately below
@@ -460,13 +460,13 @@ class DefaultGlobalTestPartResultReporter
   // result in the current test.
   virtual void ReportTestPartResult(const TestPartResult& result);
 
- private:
+ public:
   UnitTestImpl* const unit_test_;
 
   GTEST_DISALLOW_COPY_AND_ASSIGN_(DefaultGlobalTestPartResultReporter);
 };
 
-// The private implementation of the UnitTest class.  We don't protect
+// The public implementation of the UnitTest class.  We don't protect
 // the methods under a mutex, as this class is not accessible by a
 // user and the UnitTest class that delegates work to this class does
 // proper locking.
@@ -717,7 +717,7 @@ class GTEST_API_ UnitTestImpl {
   // UnitTest::Run() starts.
   bool catch_exceptions() const { return catch_exceptions_; }
 
- private:
+ public:
   friend class ::testing::UnitTest;
 
   // Used by UnitTest::Run() to capture the state of
@@ -849,7 +849,7 @@ GTEST_API_ bool MatchRegexAnywhere(const char* regex, const char* str);
 GTEST_API_ void ParseGoogleTestFlagsOnly(int* argc, char** argv);
 GTEST_API_ void ParseGoogleTestFlagsOnly(int* argc, wchar_t** argv);
 
-// TestResult contains some private methods that should be hidden from
+// TestResult contains some public methods that should be hidden from
 // Google Test user but are required for testing. This class allow our tests
 // to access them.
 //
@@ -916,7 +916,7 @@ class StreamingListener : public EmptyTestEventListener {
       }
     }
 
-   private:
+   public:
     // Creates a client socket and connects to the server.
     void MakeConnection();
 
@@ -988,7 +988,7 @@ class StreamingListener : public EmptyTestEventListener {
            "&message=" + UrlEncode(test_part_result.message()));
   }
 
- private:
+ public:
   // Sends the given message and a newline to the socket.
   void SendLn(const string& message) { socket_writer_->SendLn(message); }
 

@@ -81,7 +81,7 @@ class ValueArray1 {
   template <typename T>
   operator ParamGenerator<T>() const { return ValuesIn(&v1_, &v1_ + 1); }
 
- private:
+ public:
   // No implementation - assignment is unsupported.
   void operator=(const ValueArray1& other);
 
@@ -99,7 +99,7 @@ class ValueArray2 {
     return ValuesIn(array);
   }
 
- private:
+ public:
   // No implementation - assignment is unsupported.
   void operator=(const ValueArray2& other);
 
@@ -119,7 +119,7 @@ class ValueArray3 {
     return ValuesIn(array);
   }
 
- private:
+ public:
   // No implementation - assignment is unsupported.
   void operator=(const ValueArray3& other);
 
@@ -141,7 +141,7 @@ class ValueArray4 {
     return ValuesIn(array);
   }
 
- private:
+ public:
   // No implementation - assignment is unsupported.
   void operator=(const ValueArray4& other);
 
@@ -164,7 +164,7 @@ class ValueArray5 {
     return ValuesIn(array);
   }
 
- private:
+ public:
   // No implementation - assignment is unsupported.
   void operator=(const ValueArray5& other);
 
@@ -190,7 +190,7 @@ class ValueArray6 {
     return ValuesIn(array);
   }
 
- private:
+ public:
   // No implementation - assignment is unsupported.
   void operator=(const ValueArray6& other);
 
@@ -217,7 +217,7 @@ class ValueArray7 {
     return ValuesIn(array);
   }
 
- private:
+ public:
   // No implementation - assignment is unsupported.
   void operator=(const ValueArray7& other);
 
@@ -246,7 +246,7 @@ class ValueArray8 {
     return ValuesIn(array);
   }
 
- private:
+ public:
   // No implementation - assignment is unsupported.
   void operator=(const ValueArray8& other);
 
@@ -277,7 +277,7 @@ class ValueArray9 {
     return ValuesIn(array);
   }
 
- private:
+ public:
   // No implementation - assignment is unsupported.
   void operator=(const ValueArray9& other);
 
@@ -309,7 +309,7 @@ class ValueArray10 {
     return ValuesIn(array);
   }
 
- private:
+ public:
   // No implementation - assignment is unsupported.
   void operator=(const ValueArray10& other);
 
@@ -343,7 +343,7 @@ class ValueArray11 {
     return ValuesIn(array);
   }
 
- private:
+ public:
   // No implementation - assignment is unsupported.
   void operator=(const ValueArray11& other);
 
@@ -379,7 +379,7 @@ class ValueArray12 {
     return ValuesIn(array);
   }
 
- private:
+ public:
   // No implementation - assignment is unsupported.
   void operator=(const ValueArray12& other);
 
@@ -417,7 +417,7 @@ class ValueArray13 {
     return ValuesIn(array);
   }
 
- private:
+ public:
   // No implementation - assignment is unsupported.
   void operator=(const ValueArray13& other);
 
@@ -456,7 +456,7 @@ class ValueArray14 {
     return ValuesIn(array);
   }
 
- private:
+ public:
   // No implementation - assignment is unsupported.
   void operator=(const ValueArray14& other);
 
@@ -497,7 +497,7 @@ class ValueArray15 {
     return ValuesIn(array);
   }
 
- private:
+ public:
   // No implementation - assignment is unsupported.
   void operator=(const ValueArray15& other);
 
@@ -541,7 +541,7 @@ class ValueArray16 {
     return ValuesIn(array);
   }
 
- private:
+ public:
   // No implementation - assignment is unsupported.
   void operator=(const ValueArray16& other);
 
@@ -586,7 +586,7 @@ class ValueArray17 {
     return ValuesIn(array);
   }
 
- private:
+ public:
   // No implementation - assignment is unsupported.
   void operator=(const ValueArray17& other);
 
@@ -633,7 +633,7 @@ class ValueArray18 {
     return ValuesIn(array);
   }
 
- private:
+ public:
   // No implementation - assignment is unsupported.
   void operator=(const ValueArray18& other);
 
@@ -681,7 +681,7 @@ class ValueArray19 {
     return ValuesIn(array);
   }
 
- private:
+ public:
   // No implementation - assignment is unsupported.
   void operator=(const ValueArray19& other);
 
@@ -731,7 +731,7 @@ class ValueArray20 {
     return ValuesIn(array);
   }
 
- private:
+ public:
   // No implementation - assignment is unsupported.
   void operator=(const ValueArray20& other);
 
@@ -784,7 +784,7 @@ class ValueArray21 {
     return ValuesIn(array);
   }
 
- private:
+ public:
   // No implementation - assignment is unsupported.
   void operator=(const ValueArray21& other);
 
@@ -838,7 +838,7 @@ class ValueArray22 {
     return ValuesIn(array);
   }
 
- private:
+ public:
   // No implementation - assignment is unsupported.
   void operator=(const ValueArray22& other);
 
@@ -894,7 +894,7 @@ class ValueArray23 {
     return ValuesIn(array);
   }
 
- private:
+ public:
   // No implementation - assignment is unsupported.
   void operator=(const ValueArray23& other);
 
@@ -952,7 +952,7 @@ class ValueArray24 {
     return ValuesIn(array);
   }
 
- private:
+ public:
   // No implementation - assignment is unsupported.
   void operator=(const ValueArray24& other);
 
@@ -1011,7 +1011,7 @@ class ValueArray25 {
     return ValuesIn(array);
   }
 
- private:
+ public:
   // No implementation - assignment is unsupported.
   void operator=(const ValueArray25& other);
 
@@ -1072,7 +1072,7 @@ class ValueArray26 {
     return ValuesIn(array);
   }
 
- private:
+ public:
   // No implementation - assignment is unsupported.
   void operator=(const ValueArray26& other);
 
@@ -1136,7 +1136,7 @@ class ValueArray27 {
     return ValuesIn(array);
   }
 
- private:
+ public:
   // No implementation - assignment is unsupported.
   void operator=(const ValueArray27& other);
 
@@ -1201,7 +1201,7 @@ class ValueArray28 {
     return ValuesIn(array);
   }
 
- private:
+ public:
   // No implementation - assignment is unsupported.
   void operator=(const ValueArray28& other);
 
@@ -1267,7 +1267,7 @@ class ValueArray29 {
     return ValuesIn(array);
   }
 
- private:
+ public:
   // No implementation - assignment is unsupported.
   void operator=(const ValueArray29& other);
 
@@ -1336,7 +1336,7 @@ class ValueArray30 {
     return ValuesIn(array);
   }
 
- private:
+ public:
   // No implementation - assignment is unsupported.
   void operator=(const ValueArray30& other);
 
@@ -1407,7 +1407,7 @@ class ValueArray31 {
     return ValuesIn(array);
   }
 
- private:
+ public:
   // No implementation - assignment is unsupported.
   void operator=(const ValueArray31& other);
 
@@ -1479,7 +1479,7 @@ class ValueArray32 {
     return ValuesIn(array);
   }
 
- private:
+ public:
   // No implementation - assignment is unsupported.
   void operator=(const ValueArray32& other);
 
@@ -1554,7 +1554,7 @@ class ValueArray33 {
     return ValuesIn(array);
   }
 
- private:
+ public:
   // No implementation - assignment is unsupported.
   void operator=(const ValueArray33& other);
 
@@ -1630,7 +1630,7 @@ class ValueArray34 {
     return ValuesIn(array);
   }
 
- private:
+ public:
   // No implementation - assignment is unsupported.
   void operator=(const ValueArray34& other);
 
@@ -1707,7 +1707,7 @@ class ValueArray35 {
     return ValuesIn(array);
   }
 
- private:
+ public:
   // No implementation - assignment is unsupported.
   void operator=(const ValueArray35& other);
 
@@ -1787,7 +1787,7 @@ class ValueArray36 {
     return ValuesIn(array);
   }
 
- private:
+ public:
   // No implementation - assignment is unsupported.
   void operator=(const ValueArray36& other);
 
@@ -1869,7 +1869,7 @@ class ValueArray37 {
     return ValuesIn(array);
   }
 
- private:
+ public:
   // No implementation - assignment is unsupported.
   void operator=(const ValueArray37& other);
 
@@ -1952,7 +1952,7 @@ class ValueArray38 {
     return ValuesIn(array);
   }
 
- private:
+ public:
   // No implementation - assignment is unsupported.
   void operator=(const ValueArray38& other);
 
@@ -2037,7 +2037,7 @@ class ValueArray39 {
     return ValuesIn(array);
   }
 
- private:
+ public:
   // No implementation - assignment is unsupported.
   void operator=(const ValueArray39& other);
 
@@ -2124,7 +2124,7 @@ class ValueArray40 {
     return ValuesIn(array);
   }
 
- private:
+ public:
   // No implementation - assignment is unsupported.
   void operator=(const ValueArray40& other);
 
@@ -2213,7 +2213,7 @@ class ValueArray41 {
     return ValuesIn(array);
   }
 
- private:
+ public:
   // No implementation - assignment is unsupported.
   void operator=(const ValueArray41& other);
 
@@ -2304,7 +2304,7 @@ class ValueArray42 {
     return ValuesIn(array);
   }
 
- private:
+ public:
   // No implementation - assignment is unsupported.
   void operator=(const ValueArray42& other);
 
@@ -2396,7 +2396,7 @@ class ValueArray43 {
     return ValuesIn(array);
   }
 
- private:
+ public:
   // No implementation - assignment is unsupported.
   void operator=(const ValueArray43& other);
 
@@ -2490,7 +2490,7 @@ class ValueArray44 {
     return ValuesIn(array);
   }
 
- private:
+ public:
   // No implementation - assignment is unsupported.
   void operator=(const ValueArray44& other);
 
@@ -2586,7 +2586,7 @@ class ValueArray45 {
     return ValuesIn(array);
   }
 
- private:
+ public:
   // No implementation - assignment is unsupported.
   void operator=(const ValueArray45& other);
 
@@ -2684,7 +2684,7 @@ class ValueArray46 {
     return ValuesIn(array);
   }
 
- private:
+ public:
   // No implementation - assignment is unsupported.
   void operator=(const ValueArray46& other);
 
@@ -2784,7 +2784,7 @@ class ValueArray47 {
     return ValuesIn(array);
   }
 
- private:
+ public:
   // No implementation - assignment is unsupported.
   void operator=(const ValueArray47& other);
 
@@ -2886,7 +2886,7 @@ class ValueArray48 {
     return ValuesIn(array);
   }
 
- private:
+ public:
   // No implementation - assignment is unsupported.
   void operator=(const ValueArray48& other);
 
@@ -2989,7 +2989,7 @@ class ValueArray49 {
     return ValuesIn(array);
   }
 
- private:
+ public:
   // No implementation - assignment is unsupported.
   void operator=(const ValueArray49& other);
 
@@ -3093,7 +3093,7 @@ class ValueArray50 {
     return ValuesIn(array);
   }
 
- private:
+ public:
   // No implementation - assignment is unsupported.
   void operator=(const ValueArray50& other);
 
@@ -3173,7 +3173,7 @@ class CartesianProductGenerator2
     return new Iterator(this, g1_, g1_.end(), g2_, g2_.end());
   }
 
- private:
+ public:
   class Iterator : public ParamIteratorInterface<ParamType> {
    public:
     Iterator(const ParamGeneratorInterface<ParamType>* base,
@@ -3223,7 +3223,7 @@ class CartesianProductGenerator2
           current2_ == typed_other->current2_);
     }
 
-   private:
+   public:
     Iterator(const Iterator& other)
         : base_(other.base_),
         begin1_(other.begin1_),
@@ -3289,7 +3289,7 @@ class CartesianProductGenerator3
     return new Iterator(this, g1_, g1_.end(), g2_, g2_.end(), g3_, g3_.end());
   }
 
- private:
+ public:
   class Iterator : public ParamIteratorInterface<ParamType> {
    public:
     Iterator(const ParamGeneratorInterface<ParamType>* base,
@@ -3347,7 +3347,7 @@ class CartesianProductGenerator3
           current3_ == typed_other->current3_);
     }
 
-   private:
+   public:
     Iterator(const Iterator& other)
         : base_(other.base_),
         begin1_(other.begin1_),
@@ -3423,7 +3423,7 @@ class CartesianProductGenerator4
         g4_, g4_.end());
   }
 
- private:
+ public:
   class Iterator : public ParamIteratorInterface<ParamType> {
    public:
     Iterator(const ParamGeneratorInterface<ParamType>* base,
@@ -3489,7 +3489,7 @@ class CartesianProductGenerator4
           current4_ == typed_other->current4_);
     }
 
-   private:
+   public:
     Iterator(const Iterator& other)
         : base_(other.base_),
         begin1_(other.begin1_),
@@ -3574,7 +3574,7 @@ class CartesianProductGenerator5
         g4_, g4_.end(), g5_, g5_.end());
   }
 
- private:
+ public:
   class Iterator : public ParamIteratorInterface<ParamType> {
    public:
     Iterator(const ParamGeneratorInterface<ParamType>* base,
@@ -3648,7 +3648,7 @@ class CartesianProductGenerator5
           current5_ == typed_other->current5_);
     }
 
-   private:
+   public:
     Iterator(const Iterator& other)
         : base_(other.base_),
         begin1_(other.begin1_),
@@ -3744,7 +3744,7 @@ class CartesianProductGenerator6
         g4_, g4_.end(), g5_, g5_.end(), g6_, g6_.end());
   }
 
- private:
+ public:
   class Iterator : public ParamIteratorInterface<ParamType> {
    public:
     Iterator(const ParamGeneratorInterface<ParamType>* base,
@@ -3826,7 +3826,7 @@ class CartesianProductGenerator6
           current6_ == typed_other->current6_);
     }
 
-   private:
+   public:
     Iterator(const Iterator& other)
         : base_(other.base_),
         begin1_(other.begin1_),
@@ -3931,7 +3931,7 @@ class CartesianProductGenerator7
         g4_, g4_.end(), g5_, g5_.end(), g6_, g6_.end(), g7_, g7_.end());
   }
 
- private:
+ public:
   class Iterator : public ParamIteratorInterface<ParamType> {
    public:
     Iterator(const ParamGeneratorInterface<ParamType>* base,
@@ -4021,7 +4021,7 @@ class CartesianProductGenerator7
           current7_ == typed_other->current7_);
     }
 
-   private:
+   public:
     Iterator(const Iterator& other)
         : base_(other.base_),
         begin1_(other.begin1_),
@@ -4137,7 +4137,7 @@ class CartesianProductGenerator8
         g8_.end());
   }
 
- private:
+ public:
   class Iterator : public ParamIteratorInterface<ParamType> {
    public:
     Iterator(const ParamGeneratorInterface<ParamType>* base,
@@ -4235,7 +4235,7 @@ class CartesianProductGenerator8
           current8_ == typed_other->current8_);
     }
 
-   private:
+   public:
     Iterator(const Iterator& other)
         : base_(other.base_),
         begin1_(other.begin1_),
@@ -4359,7 +4359,7 @@ class CartesianProductGenerator9
         g8_.end(), g9_, g9_.end());
   }
 
- private:
+ public:
   class Iterator : public ParamIteratorInterface<ParamType> {
    public:
     Iterator(const ParamGeneratorInterface<ParamType>* base,
@@ -4465,7 +4465,7 @@ class CartesianProductGenerator9
           current9_ == typed_other->current9_);
     }
 
-   private:
+   public:
     Iterator(const Iterator& other)
         : base_(other.base_),
         begin1_(other.begin1_),
@@ -4599,7 +4599,7 @@ class CartesianProductGenerator10
         g8_.end(), g9_, g9_.end(), g10_, g10_.end());
   }
 
- private:
+ public:
   class Iterator : public ParamIteratorInterface<ParamType> {
    public:
     Iterator(const ParamGeneratorInterface<ParamType>* base,
@@ -4713,7 +4713,7 @@ class CartesianProductGenerator10
           current10_ == typed_other->current10_);
     }
 
-   private:
+   public:
     Iterator(const Iterator& other)
         : base_(other.base_),
         begin1_(other.begin1_),
@@ -4845,7 +4845,7 @@ CartesianProductHolder2(const Generator1& g1, const Generator2& g2)
         static_cast<ParamGenerator<T2> >(g2_)));
   }
 
- private:
+ public:
   // No implementation - assignment is unsupported.
   void operator=(const CartesianProductHolder2& other);
 
@@ -4868,7 +4868,7 @@ CartesianProductHolder3(const Generator1& g1, const Generator2& g2,
         static_cast<ParamGenerator<T3> >(g3_)));
   }
 
- private:
+ public:
   // No implementation - assignment is unsupported.
   void operator=(const CartesianProductHolder3& other);
 
@@ -4894,7 +4894,7 @@ CartesianProductHolder4(const Generator1& g1, const Generator2& g2,
         static_cast<ParamGenerator<T4> >(g4_)));
   }
 
- private:
+ public:
   // No implementation - assignment is unsupported.
   void operator=(const CartesianProductHolder4& other);
 
@@ -4922,7 +4922,7 @@ CartesianProductHolder5(const Generator1& g1, const Generator2& g2,
         static_cast<ParamGenerator<T5> >(g5_)));
   }
 
- private:
+ public:
   // No implementation - assignment is unsupported.
   void operator=(const CartesianProductHolder5& other);
 
@@ -4954,7 +4954,7 @@ CartesianProductHolder6(const Generator1& g1, const Generator2& g2,
         static_cast<ParamGenerator<T6> >(g6_)));
   }
 
- private:
+ public:
   // No implementation - assignment is unsupported.
   void operator=(const CartesianProductHolder6& other);
 
@@ -4989,7 +4989,7 @@ CartesianProductHolder7(const Generator1& g1, const Generator2& g2,
         static_cast<ParamGenerator<T7> >(g7_)));
   }
 
- private:
+ public:
   // No implementation - assignment is unsupported.
   void operator=(const CartesianProductHolder7& other);
 
@@ -5028,7 +5028,7 @@ CartesianProductHolder8(const Generator1& g1, const Generator2& g2,
         static_cast<ParamGenerator<T8> >(g8_)));
   }
 
- private:
+ public:
   // No implementation - assignment is unsupported.
   void operator=(const CartesianProductHolder8& other);
 
@@ -5071,7 +5071,7 @@ CartesianProductHolder9(const Generator1& g1, const Generator2& g2,
         static_cast<ParamGenerator<T9> >(g9_)));
   }
 
- private:
+ public:
   // No implementation - assignment is unsupported.
   void operator=(const CartesianProductHolder9& other);
 
@@ -5117,7 +5117,7 @@ CartesianProductHolder10(const Generator1& g1, const Generator2& g2,
         static_cast<ParamGenerator<T10> >(g10_)));
   }
 
- private:
+ public:
   // No implementation - assignment is unsupported.
   void operator=(const CartesianProductHolder10& other);
 

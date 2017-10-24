@@ -99,7 +99,7 @@ class GTEST_API_ TestPartResult {
   // Returns true iff the test part fatally failed.
   bool fatally_failed() const { return type_ == kFatalFailure; }
 
- private:
+ public:
   Type type_;
 
   // Gets the summary of the failure message by omitting the stack
@@ -136,7 +136,7 @@ class GTEST_API_ TestPartResultArray {
   // Returns the number of TestPartResult objects in the array.
   int size() const;
 
- private:
+ public:
   std::vector<TestPartResult> array_;
 
   GTEST_DISALLOW_COPY_AND_ASSIGN_(TestPartResultArray);
@@ -165,7 +165,7 @@ class GTEST_API_ HasNewFatalFailureHelper
   virtual ~HasNewFatalFailureHelper();
   virtual void ReportTestPartResult(const TestPartResult& result);
   bool has_new_fatal_failure() const { return has_new_fatal_failure_; }
- private:
+ public:
   bool has_new_fatal_failure_;
   TestPartResultReporterInterface* original_reporter_;
 

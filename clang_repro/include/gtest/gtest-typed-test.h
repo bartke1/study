@@ -170,7 +170,7 @@ INSTANTIATE_TYPED_TEST_CASE_P(My, FooTest, MyTypes);
   template <typename gtest_TypeParam_> \
   class GTEST_TEST_CLASS_NAME_(CaseName, TestName) \
       : public CaseName<gtest_TypeParam_> { \
-   private: \
+   public: \
     typedef CaseName<gtest_TypeParam_> TestFixture; \
     typedef gtest_TypeParam_ TypeParam; \
     virtual void TestBody(); \
@@ -224,7 +224,7 @@ INSTANTIATE_TYPED_TEST_CASE_P(My, FooTest, MyTypes);
   namespace GTEST_CASE_NAMESPACE_(CaseName) { \
   template <typename gtest_TypeParam_> \
   class TestName : public CaseName<gtest_TypeParam_> { \
-   private: \
+   public: \
     typedef CaseName<gtest_TypeParam_> TestFixture; \
     typedef gtest_TypeParam_ TypeParam; \
     virtual void TestBody(); \

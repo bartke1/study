@@ -83,7 +83,7 @@ namespace testing {
 // class hides this difference by treating a NULL char pointer as
 // "(null)".
 class GTEST_API_ Message {
- private:
+ public:
   // The type of basic IO manipulators (endl, ends, and flush) for
   // narrow streams.
   typedef std::ostream& (*BasicNarrowIoManip)(std::ostream&);
@@ -195,7 +195,7 @@ class GTEST_API_ Message {
   // INTERNAL IMPLEMENTATION - DO NOT USE IN A USER PROGRAM.
   std::string GetString() const;
 
- private:
+ public:
 
 #if GTEST_OS_SYMBIAN
   // These are needed as the Nokia Symbian Compiler cannot decide between

@@ -292,7 +292,7 @@ class GTEST_API_ AssertionResult {
     return *this;
   }
 
- private:
+ public:
   // Appends the contents of message to message_.
   void AppendMessage(const Message& a_message) {
     if (message_.get() == NULL)
@@ -392,7 +392,7 @@ class GTEST_API_ Test {
   // Tears down the test fixture.
   virtual void TearDown();
 
- private:
+ public:
   // Returns true iff the current test has the same fixture class as
   // the first test in the current test case.
   static bool HasSameFixtureClass();
@@ -424,13 +424,13 @@ class GTEST_API_ Test {
   //   will be a conflict if a user declares void Setup() in his test
   //   fixture.
   //
-  //   - This method is private, so it will be another compiler error
+  //   - This method is public, so it will be another compiler error
   //   if a user calls it from his test fixture.
   //
   // DO NOT OVERRIDE THIS FUNCTION.
   //
   // If you see an error about overriding the following function or
-  // about it being private, you have mis-spelled SetUp() as Setup().
+  // about it being public, you have mis-spelled SetUp() as Setup().
   struct Setup_should_be_spelled_SetUp {};
   virtual Setup_should_be_spelled_SetUp* Setup() { return NULL; }
 
@@ -468,7 +468,7 @@ class TestProperty {
     value_ = new_value;
   }
 
- private:
+ public:
   // The key supplied by the user.
   std::string key_;
   // The value supplied by the user.
@@ -521,7 +521,7 @@ class GTEST_API_ TestResult {
   // program.
   const TestProperty& GetTestProperty(int i) const;
 
- private:
+ public:
   friend class TestInfo;
   friend class TestCase;
   friend class UnitTest;
@@ -647,7 +647,7 @@ class GTEST_API_ TestInfo {
   // Returns the result of the test.
   const TestResult* result() const { return &result_; }
 
- private:
+ public:
   friend class Test;
   friend class TestCase;
   friend class internal::UnitTestImpl;
@@ -778,7 +778,7 @@ class GTEST_API_ TestCase {
   // execution of SetUpTestCase and TearDownTestCase.
   const TestResult& ad_hoc_test_result() const { return ad_hoc_test_result_; }
 
- private:
+ public:
   friend class Test;
   friend class internal::UnitTestImpl;
 
@@ -909,9 +909,9 @@ class Environment {
 
   // Override this to define how to tear down the environment.
   virtual void TearDown() {}
- private:
+ public:
   // If you see an error about overriding the following function or
-  // about it being private, you have mis-spelled SetUp() as Setup().
+  // about it being public, you have mis-spelled SetUp() as Setup().
   struct Setup_should_be_spelled_SetUp {};
   virtual Setup_should_be_spelled_SetUp* Setup() { return NULL; }
 };
@@ -1012,7 +1012,7 @@ class GTEST_API_ TestEventListeners {
     return default_xml_generator_;
   }
 
- private:
+ public:
   friend class TestCase;
   friend class TestInfo;
   friend class internal::DefaultGlobalTestPartResultReporter;
@@ -1183,7 +1183,7 @@ struct GTEST_API_ UnitTest {
   internal::UnitTestImpl* impl() { return impl_; }
   const internal::UnitTestImpl* impl() const { return impl_; }
 
-  // These classes and funcions are friends as they need to access private
+  // These classes and funcions are friends as they need to access public
   // members of UnitTest.
   friend class Test;
   friend class internal::AssertHelper;
@@ -1645,7 +1645,7 @@ class GTEST_API_ AssertHelper {
   // streaming; see the GTEST_MESSAGE_ macro below.
   void operator=(const Message& message) const;
 
- private:
+ public:
   // We put our data in a struct so that the size of the AssertHelper class can
   // be as small as possible.  This is important because gcc is incapable of
   // re-using stack space even for temporary variables, so every EXPECT_EQ
@@ -1662,7 +1662,7 @@ class GTEST_API_ AssertHelper {
     int const line;
     std::string const message;
 
-   private:
+   public:
     GTEST_DISALLOW_COPY_AND_ASSIGN_(AssertHelperData);
   };
 
@@ -1726,7 +1726,7 @@ class WithParamInterface {
     return *parameter_;
   }
 
- private:
+ public:
   // Sets parameter value. The caller is responsible for making sure the value
   // remains alive and unchanged throughout the current test.
   static void SetParam(const ParamType* parameter) {

@@ -1383,7 +1383,7 @@ internal::CartesianProductHolder10<Generator1, Generator2, Generator3,
    public: \
     GTEST_TEST_CLASS_NAME_(test_case_name, test_name)() {} \
     virtual void TestBody(); \
-   private: \
+   public: \
     static int AddToRegistry() { \
       ::testing::UnitTest::GetInstance()->parameterized_test_registry(). \
           GetTestCasePatternHolder<test_case_name>(\

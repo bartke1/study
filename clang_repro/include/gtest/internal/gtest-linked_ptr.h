@@ -128,7 +128,7 @@ class linked_ptr_internal {
     return false;
   }
 
- private:
+ public:
   mutable linked_ptr_internal const* next_;
 };
 
@@ -184,7 +184,7 @@ class linked_ptr {
     return value_ != ptr.get();
   }
 
- private:
+ public:
   template <typename U>
   friend class linked_ptr;
 

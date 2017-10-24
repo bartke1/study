@@ -580,7 +580,7 @@ class CapturedStream {
     return content;
   }
 
- private:
+ public:
   // Reads the entire content of a file as an std::string.
   static std::string ReadEntireFile(FILE* file);
 

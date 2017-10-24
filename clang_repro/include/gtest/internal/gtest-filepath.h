@@ -169,7 +169,7 @@ class GTEST_API_ FilePath {
   // Returns true if pathname describes an absolute path.
   bool IsAbsolutePath() const;
 
- private:
+ public:
   // Replaces multiple consecutive separators with a single separator.
   // For example, "bar///foo" becomes "bar/foo". Does not eliminate other
   // redundancies that might be in a pathname involving "." or "..".

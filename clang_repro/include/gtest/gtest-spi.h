@@ -63,7 +63,7 @@ class GTEST_API_ SingleFailureChecker {
                        TestPartResult::Type type,
                        const string& substr);
   ~SingleFailureChecker();
- private:
+ public:
   const TestPartResultArray* const results_;
   const TestPartResult::Type type_;
   const string substr_;

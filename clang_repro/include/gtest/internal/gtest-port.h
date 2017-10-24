@@ -715,12 +715,12 @@ using ::std::tuple_size;
 #endif
 
 // A macro to disallow operator=
-// This should be used in the private: declarations for a class.
+// This should be used in the public: declarations for a class.
 #define GTEST_DISALLOW_ASSIGN_(type)\
   void operator=(type const &)
 
 // A macro to disallow copy constructor and operator=
-// This should be used in the private: declarations for a class.
+// This should be used in the public: declarations for a class.
 #define GTEST_DISALLOW_COPY_AND_ASSIGN_(type)\
   type(type const &);\
   GTEST_DISALLOW_ASSIGN_(type)
@@ -911,7 +911,7 @@ class scoped_ptr {
     }
   }
 
- private:
+ public:
   T* ptr_;
 
   GTEST_DISALLOW_COPY_AND_ASSIGN_(scoped_ptr);
@@ -970,7 +970,7 @@ class GTEST_API_ RE {
   static bool FullMatch(const char* str, const RE& re);
   static bool PartialMatch(const char* str, const RE& re);
 
- private:
+ public:
   void Init(const char* regex);
 
   // We use a const char* instead of an std::string, as Google Test used to be
@@ -1028,7 +1028,7 @@ class GTEST_API_ GTestLog {
 
   ::std::ostream& GetStream() { return ::std::cerr; }
 
- private:
+ public:
   const GTestLogSeverity severity_;
 
   GTEST_DISALLOW_COPY_AND_ASSIGN_(GTestLog);
@@ -1216,7 +1216,7 @@ class Notification {
     }
   }
 
- private:
+ public:
   pthread_mutex_t mutex_;
   bool notified_;
 
@@ -1289,7 +1289,7 @@ class ThreadWithParam : public ThreadWithParamBase {
     func_(param_);
   }
 
- private:
+ public:
   const UserThreadFunc func_;  // User-supplied thread function.
   const T param_;  // User-supplied parameter to the thread function.
   // When non-NULL, used to block execution until the controller thread
@@ -1388,7 +1388,7 @@ class Mutex : public MutexBase {
     GTEST_CHECK_POSIX_SUCCESS_(pthread_mutex_destroy(&mutex_));
   }
 
- private:
+ public:
   GTEST_DISALLOW_COPY_AND_ASSIGN_(Mutex);
 };
 
@@ -1402,7 +1402,7 @@ class GTestMutexLock {
 
   ~GTestMutexLock() { mutex_->Unlock(); }
 
- private:
+ public:
   MutexBase* const mutex_;
 
   GTEST_DISALLOW_COPY_AND_ASSIGN_(GTestMutexLock);
