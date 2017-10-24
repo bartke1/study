@@ -3030,45 +3030,6 @@ void XmlUnitTestResultPrinter::PrintXmlTestCase(std::ostream* stream,
   *stream << "  </" << kTestsuite << ">\n";
 }
 
-// Prints an XML summary of unit_test to output stream out.
-void XmlUnitTestResultPrinter::PrintXmlUnitTest(std::ostream* stream,
-                                                const UnitTest& unit_test) {
-  const std::string kTestsuites = "testsuites";
-
-  *stream << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
-  *stream << "<" << kTestsuites;
-
-  OutputXmlAttribute(stream, kTestsuites, "tests",
-                     StreamableToString(unit_test.reportable_test_count()));
-  OutputXmlAttribute(stream, kTestsuites, "failures",
-                     StreamableToString(unit_test.failed_test_count()));
-  OutputXmlAttribute(
-      stream, kTestsuites, "disabled",
-      StreamableToString(unit_test.reportable_disabled_test_count()));
-  OutputXmlAttribute(stream, kTestsuites, "errors", "0");
-  OutputXmlAttribute(
-      stream, kTestsuites, "timestamp",
-      FormatEpochTimeInMillisAsIso8601(unit_test.start_timestamp()));
-  OutputXmlAttribute(stream, kTestsuites, "time",
-                     FormatTimeInMillisAsSeconds(unit_test.elapsed_time()));
-
-  if (GTEST_FLAG(shuffle)) {
-    OutputXmlAttribute(stream, kTestsuites, "random_seed",
-                       StreamableToString(unit_test.random_seed()));
-  }
-
-  *stream << TestPropertiesAsXmlAttributes(unit_test.ad_hoc_test_result());
-
-  OutputXmlAttribute(stream, kTestsuites, "name", "AllTests");
-  *stream << ">\n";
-
-  for (int i = 0; i < unit_test.total_test_case_count(); ++i) {
-    if (unit_test.GetTestCase(i)->reportable_test_count() > 0)
-      PrintXmlTestCase(stream, *unit_test.GetTestCase(i));
-  }
-  *stream << "</" << kTestsuites << ">\n";
-}
-
 // Produces a string representing the test properties in a result as space
 // delimited XML attributes based on the property key="value" pairs.
 std::string XmlUnitTestResultPrinter::TestPropertiesAsXmlAttributes(
@@ -3356,17 +3317,6 @@ int UnitTest::total_test_count() const { return impl()->total_test_count(); }
 // Gets the number of tests that should run.
 int UnitTest::test_to_run_count() const { return impl()->test_to_run_count(); }
 
-// Gets the time of the test program start, in ms from the start of the
-// UNIX epoch.
-internal::TimeInMillis UnitTest::start_timestamp() const {
-    return impl()->start_timestamp();
-}
-
-// Gets the elapsed time, in milliseconds.
-internal::TimeInMillis UnitTest::elapsed_time() const {
-  return impl()->elapsed_time();
-}
-
 // Returns true iff the unit test passed (i.e. all test cases passed).
 bool UnitTest::Passed() const { return impl()->Passed(); }
 
@@ -3386,11 +3336,6 @@ const TestResult& UnitTest::ad_hoc_test_result() const {
   return *impl()->ad_hoc_test_result();
 }
 
-// Gets the i-th test case among all the test cases. i can range from 0 to
-// total_test_case_count() - 1. If i is not in that range, returns NULL.
-TestCase* UnitTest::GetMutableTestCase(int i) {
-  return impl()->GetMutableTestCase(i);
-}
 
 // Returns the list of event listeners that can be used to track events
 // inside Google Test.
@@ -3408,14 +3353,6 @@ TestEventListeners& UnitTest::listeners() {
 //
 // We don't protect this under mutex_, as we only support calling it
 // from the main thread.
-Environment* UnitTest::AddEnvironment(Environment* env) {
-  if (env == NULL) {
-    return NULL;
-  }
-
-  impl_->environments().push_back(env);
-  return env;
-}
 
 // Runs all tests in this UnitTest object and prints the result.
 // Returns 0 if successful, or 1 otherwise.
@@ -3489,64 +3426,12 @@ UnitTestImpl::~UnitTestImpl() {
   delete os_stack_trace_getter_;
 }
 
-// Initializes event listeners performing XML output as specified by
-// UnitTestOptions. Must not be called before InitGoogleTest.
 void UnitTestImpl::ConfigureXmlOutput() {
-  const std::string& output_format = UnitTestOptions::GetOutputFormat();
-  if (output_format == "xml") {
-    listeners()->SetDefaultXmlGenerator(new XmlUnitTestResultPrinter(
-        UnitTestOptions::GetAbsolutePathToOutputFile().c_str()));
-  } else if (output_format != "") {
-    printf("WARNING: unrecognized output format \"%s\" ignored.\n",
-           output_format.c_str());
-    fflush(stdout);
-  }
 }
 
-#if GTEST_CAN_STREAM_RESULTS_
-// Initializes event listeners for streaming test results in string form.
-// Must not be called before InitGoogleTest.
 void UnitTestImpl::ConfigureStreamingOutput() {
-  const std::string& target = GTEST_FLAG(stream_result_to);
-  if (!target.empty()) {
-    const size_t pos = target.find(':');
-    if (pos != std::string::npos) {
-      listeners()->Append(new StreamingListener(target.substr(0, pos),
-                                                target.substr(pos+1)));
-    } else {
-      printf("WARNING: unrecognized streaming target \"%s\" ignored.\n",
-             target.c_str());
-      fflush(stdout);
-    }
-  }
 }
-#endif  // GTEST_CAN_STREAM_RESULTS_
 
-// Performs initialization dependent upon flag values obtained in
-// ParseGoogleTestFlagsOnly.  Is called from InitGoogleTest after the call to
-// ParseGoogleTestFlagsOnly.  In case a user neglects to call InitGoogleTest
-// this function is also called from RunAllTests.  Since this function can be
-// called more than once, it has to be idempotent.
-void UnitTestImpl::PostFlagParsingInit() {
-  // Ensures that this function does not execute more than once.
-  if (!post_flag_parse_init_performed_) {
-    post_flag_parse_init_performed_ = true;
-
-    // Registers parameterized tests. This makes parameterized tests
-    // available to the UnitTest reflection API without running
-    // RUN_ALL_TESTS.
-    RegisterParameterizedTests();
-
-    // Configures listeners for XML output. This makes it possible for users
-    // to shut down the default XML output before invoking RUN_ALL_TESTS.
-    ConfigureXmlOutput();
-
-#if GTEST_CAN_STREAM_RESULTS_
-    // Configures listeners for streaming test results to the specified server.
-    ConfigureStreamingOutput();
-#endif  // GTEST_CAN_STREAM_RESULTS_
-  }
-}
 
 // A predicate that checks the name of a TestCase against a known
 // value.
