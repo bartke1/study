@@ -3034,16 +3034,6 @@ UnitTest::~UnitTest() {
 
 namespace internal {
 
-UnitTestImpl::UnitTestImpl(UnitTest* parent)
-    : current_test_case_(NULL),
-      current_test_info_(NULL)
-{
-}
-
-UnitTestImpl::~UnitTestImpl() {
-}
-
-
 // Finds and returns a TestCase with the given name.  If one doesn't
 // exist, creates one and returns it.  It's the CALLER'S
 // RESPONSIBILITY to ensure that this function is only called WHEN THE
@@ -3072,7 +3062,7 @@ TestCase* UnitTestImpl::GetTestCase() {
 // All other functions called from RunAllTests() may safely assume that
 // parameterized tests are ready to be counted and run.
 bool UnitTestImpl::RunAllTests() {
-    FilterTests(IGNORE_SHARDING_PROTOCOL);
+    FilterTests();
     test_cases_[0]->Run();
     return true;
 }
@@ -3084,7 +3074,7 @@ bool UnitTestImpl::RunAllTests() {
 // variables in the environment - see
 // http://code.google.com/p/googletest/wiki/GoogleTestAdvancedGuide.
 // Returns the number of tests that should run.
-int UnitTestImpl::FilterTests(ReactionToSharding shard_tests) {
+int UnitTestImpl::FilterTests() {
     TestCase* const test_case = test_cases_[0];
     TestInfo* const test_info = test_case->test_info_list_[0];
     test_info->should_run_ = true;

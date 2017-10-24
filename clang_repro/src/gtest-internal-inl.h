@@ -472,81 +472,34 @@ class DefaultGlobalTestPartResultReporter
 // proper locking.
 class GTEST_API_ UnitTestImpl {
  public:
-  explicit UnitTestImpl(UnitTest* parent);
-  virtual ~UnitTestImpl();
+  UnitTestImpl(UnitTest* parent)
+      : current_test_case_(NULL),
+        current_test_info_(NULL)
+  {}
 
-  // Finds and returns a TestCase with the given name.  If one doesn't
-  // exist, creates one and returns it.
-  //
-  // Arguments:
-  //
-  //   test_case_name: name of the test case
-  //   type_param:     the name of the test's type parameter, or NULL if
-  //                   this is not a typed or a type-parameterized test.
-  //   set_up_tc:      pointer to the function that sets up the test case
-  //   tear_down_tc:   pointer to the function that tears down the test case
   TestCase* GetTestCase();
 
-  // Adds a TestInfo to the unit test.
-  //
-  // Arguments:
-  //
-  //   set_up_tc:    pointer to the function that sets up the test case
-  //   tear_down_tc: pointer to the function that tears down the test case
-  //   test_info:    the TestInfo object
   void AddTestInfo(TestInfo* test_info) {
     GetTestCase()->AddTestInfo(test_info);
   }
 
-  // Sets the TestCase object for the test that's currently running.
   void set_current_test_case(TestCase* a_current_test_case) {
     current_test_case_ = a_current_test_case;
   }
 
-  // Sets the TestInfo object for the test that's currently running.  If
-  // current_test_info is NULL, the assertion results will be stored in
-  // ad_hoc_test_result_.
   void set_current_test_info(TestInfo* a_current_test_info) {
     current_test_info_ = a_current_test_info;
   }
 
-  // Runs all tests in this UnitTest object, prints the result, and
-  // returns true if all tests are successful.  If any exception is
-  // thrown during a test, this test is considered to be failed, but
-  // the rest of the tests will still be run.
   bool RunAllTests();
-
-  enum ReactionToSharding {
-    HONOR_SHARDING_PROTOCOL,
-    IGNORE_SHARDING_PROTOCOL
-  };
-
-  // Matches the full name of each test against the user-specified
-  // filter to decide whether the test should run, then records the
-  // result in each TestCase and TestInfo object.
-  // If shard_tests == HONOR_SHARDING_PROTOCOL, further filters tests
-  // based on sharding variables in the environment.
-  // Returns the number of tests that should run.
-  int FilterTests(ReactionToSharding shard_tests);
+  int FilterTests();
 
   const TestCase* current_test_case() const { return current_test_case_; }
   TestInfo* current_test_info() { return current_test_info_; }
   const TestInfo* current_test_info() const { return current_test_info_; }
 
-  // The vector of TestCases in their original order.  It owns the
-  // elements in the vector.
   std::vector<TestCase*> test_cases_;
-
-  // This points to the TestCase for the currently running test.  It
-  // changes as Google Test goes through one test case after another.
-  // When no test is running, this is set to NULL and Google Test
-  // stores assertion results in ad_hoc_test_result_.  Initially NULL.
   TestCase* current_test_case_;
-
-  // This points to the TestInfo for the currently running test.  It
-  // changes as Google Test goes through one test after another.  When
-  // no test is running, this is set to NULL and Google Test stores
-  // assertion results in ad_hoc_test_result_.  Initially NULL.
   TestInfo* current_test_info_;
 };  // class UnitTestImpl
 
