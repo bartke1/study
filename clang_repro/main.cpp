@@ -41,7 +41,9 @@ public:
 
         AA()
         {
+            printf("pre\n");
             std::memset(&(theData[0]), 0, sizeof(theData));
+            printf("post\n");
         }
     };
 
