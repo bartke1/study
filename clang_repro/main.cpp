@@ -62,10 +62,13 @@ struct T : public testing::Test
 using namespace ::testing;
 using namespace ::testing::internal;
 
+template <class TestClass>
+struct F
+{
+    virtual Test* CreateTest() { return new TestClass; }
+};
+
 int main(int argc, char* argv[])
 {
-//    factory_->CreateTest()->Run();
-
-    TestInfo* ti = new TestInfo(new TestFactoryImpl<T>);
-    ti->Run();
+    F<T>().CreateTest()->Run();
 }
