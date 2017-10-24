@@ -1024,25 +1024,6 @@ class GTEST_API_ TestEventListeners {
   // subscribers.
   TestEventListener* repeater();
 
-  // Sets the default_result_printer attribute to the provided listener.
-  // The listener is also added to the listener list and previous
-  // default_result_printer is removed from it and deleted. The listener can
-  // also be NULL in which case it will not be added to the list. Does
-  // nothing if the previous and the current listener objects are the same.
-  void SetDefaultResultPrinter(TestEventListener* listener);
-
-  // Sets the default_xml_generator attribute to the provided listener.  The
-  // listener is also added to the listener list and previous
-  // default_xml_generator is removed from it and deleted. The listener can
-  // also be NULL in which case it will not be added to the list. Does
-  // nothing if the previous and the current listener objects are the same.
-  void SetDefaultXmlGenerator(TestEventListener* listener);
-
-  // Controls whether events will be forwarded by the repeater to the
-  // listeners in the list.
-  bool EventForwardingEnabled() const;
-  void SuppressEventForwarding();
-
   // The actual list of listeners.
   internal::TestEventRepeater* repeater_;
   // Listener responsible for the standard result output.
@@ -1078,10 +1059,6 @@ struct GTEST_API_ UnitTest {
   // INTERNAL IMPLEMENTATION - DO NOT USE IN A USER PROGRAM.
   int Run() GTEST_MUST_USE_RESULT_;
 
-  // Returns the working directory when the first TEST() or TEST_F()
-  // was executed.  The UnitTest object owns the string.
-  const char* original_working_dir() const;
-
   // Returns the TestCase object for the test that's currently running,
   // or NULL if no test is running.
   const TestCase* current_test_case() const
@@ -1092,39 +1069,9 @@ struct GTEST_API_ UnitTest {
   const TestInfo* current_test_info() const
       GTEST_LOCK_EXCLUDED_(mutex_);
 
-  // Returns the random seed used at the start of the current test run.
-  int random_seed() const;
-
-#if GTEST_HAS_PARAM_TEST
-  // Returns the ParameterizedTestCaseRegistry object used to keep track of
-  // value-parameterized tests and instantiate and register them.
-  //
-  // INTERNAL IMPLEMENTATION - DO NOT USE IN A USER PROGRAM.
-  internal::ParameterizedTestCaseRegistry& parameterized_test_registry()
-      GTEST_LOCK_EXCLUDED_(mutex_);
-#endif  // GTEST_HAS_PARAM_TEST
-
-  // Gets the time of the test program start, in ms from the start of the
-  // UNIX epoch.
-  TimeInMillis start_timestamp() const;
-
-  // Gets the elapsed time, in milliseconds.
-  TimeInMillis elapsed_time() const;
-
-  // Returns true iff the unit test passed (i.e. all test cases passed).
-  bool Passed() const;
-
-  // Returns true iff the unit test failed (i.e. some test case failed
-  // or something outside of all tests failed).
-  bool Failed() const;
-
   // Gets the i-th test case among all the test cases. i can range from 0 to
   // total_test_case_count() - 1. If i is not in that range, returns NULL.
   const TestCase* GetTestCase(int i) const;
-
-  // Returns the TestResult containing information on test failures and
-  // properties logged outside of individual test cases.
-  const TestResult& ad_hoc_test_result() const;
 
   // Registers and returns a global test environment.  When a test
   // program is run, all global test environments will be set-up in
@@ -1137,26 +1084,9 @@ struct GTEST_API_ UnitTest {
   // This method can only be called from the main thread.
   Environment* AddEnvironment(Environment* env);
 
-  // Gets the i-th test case among all the test cases. i can range from 0 to
-  // total_test_case_count() - 1. If i is not in that range, returns NULL.
-  TestCase* GetMutableTestCase(int i);
-
   // Accessors for the implementation object.
   internal::UnitTestImpl* impl() { return impl_; }
   const internal::UnitTestImpl* impl() const { return impl_; }
-
-  // These classes and funcions are friends as they need to access public
-  // members of UnitTest.
-  friend class Test;
-  friend class internal::AssertHelper;
-  friend class internal::ScopedTrace;
-  friend class internal::StreamingListenerTest;
-  friend class internal::UnitTestRecordPropertyTestHelper;
-  friend Environment* AddGlobalTestEnvironment(Environment* env);
-  friend internal::UnitTestImpl* internal::GetUnitTestImpl();
-  friend void internal::ReportFailureInUnknownLocation(
-      TestPartResult::Type result_type,
-      const std::string& message);
 
   // Creates an empty UnitTest.
   UnitTest();

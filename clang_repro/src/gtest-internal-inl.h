@@ -880,12 +880,6 @@ class StreamingListener : public EmptyTestEventListener {
   }
 
   void OnTestProgramEnd(const UnitTest& unit_test) {
-    // Note that Google Test current only report elapsed time for each
-    // test iteration, not for the entire test program.
-    SendLn("event=TestProgramEnd&passed=" + FormatBool(unit_test.Passed()));
-
-    // Notify the streaming server to stop.
-    socket_writer_->CloseConnection();
   }
 
   void OnTestCaseStart(const TestCase& test_case) {

@@ -395,34 +395,7 @@ std::string UnitTestOptions::GetOutputFormat() {
 // Returns the name of the requested output file, or the default if none
 // was explicitly specified.
 std::string UnitTestOptions::GetAbsolutePathToOutputFile() {
-  const char* const gtest_output_flag = GTEST_FLAG(output).c_str();
-  if (gtest_output_flag == NULL)
-    return "";
-
-  const char* const colon = strchr(gtest_output_flag, ':');
-  if (colon == NULL)
-    return internal::FilePath::ConcatPaths(
-        internal::FilePath(
-            UnitTest::GetInstance()->original_working_dir()),
-        internal::FilePath(kDefaultOutputFile)).string();
-
-  internal::FilePath output_name(colon + 1);
-  if (!output_name.IsAbsolutePath())
-    // TODO(wan@google.com): on Windows \some\path is not an absolute
-    // path (as its meaning depends on the current drive), yet the
-    // following logic for turning it into an absolute path is wrong.
-    // Fix it.
-    output_name = internal::FilePath::ConcatPaths(
-        internal::FilePath(UnitTest::GetInstance()->original_working_dir()),
-        internal::FilePath(colon + 1));
-
-  if (!output_name.IsDirectory())
-    return output_name.string();
-
-  internal::FilePath result(internal::FilePath::GenerateUniqueFileName(
-      output_name, internal::GetCurrentExecutableName(),
-      GetOutputFormat().c_str()));
-  return result.string();
+  return "";
 }
 
 // Returns true iff the wildcard pattern matches the string.  The
@@ -3108,48 +3081,6 @@ TestEventListener* TestEventListeners::Release(TestEventListener* listener) {
 // subscribers.
 TestEventListener* TestEventListeners::repeater() { return repeater_; }
 
-// Sets the default_result_printer attribute to the provided listener.
-// The listener is also added to the listener list and previous
-// default_result_printer is removed from it and deleted. The listener can
-// also be NULL in which case it will not be added to the list. Does
-// nothing if the previous and the current listener objects are the same.
-void TestEventListeners::SetDefaultResultPrinter(TestEventListener* listener) {
-  if (default_result_printer_ != listener) {
-    // It is an error to pass this method a listener that is already in the
-    // list.
-    delete Release(default_result_printer_);
-    default_result_printer_ = listener;
-    if (listener != NULL)
-      Append(listener);
-  }
-}
-
-// Sets the default_xml_generator attribute to the provided listener.  The
-// listener is also added to the listener list and previous
-// default_xml_generator is removed from it and deleted. The listener can
-// also be NULL in which case it will not be added to the list. Does
-// nothing if the previous and the current listener objects are the same.
-void TestEventListeners::SetDefaultXmlGenerator(TestEventListener* listener) {
-  if (default_xml_generator_ != listener) {
-    // It is an error to pass this method a listener that is already in the
-    // list.
-    delete Release(default_xml_generator_);
-    default_xml_generator_ = listener;
-    if (listener != NULL)
-      Append(listener);
-  }
-}
-
-// Controls whether events will be forwarded by the repeater to the
-// listeners in the list.
-bool TestEventListeners::EventForwardingEnabled() const {
-  return repeater_->forwarding_enabled();
-}
-
-void TestEventListeners::SuppressEventForwarding() {
-  repeater_->set_forwarding_enabled(false);
-}
-
 // class UnitTest
 
 // Gets the singleton UnitTest object.  The first time this method is
@@ -3206,15 +3137,6 @@ int UnitTest::Run() {
     return impl()->RunAllTests();
 }
 
-// Returns the working directory when the first TEST() or TEST_F() was
-// executed.
-const char* UnitTest::original_working_dir() const {
-  return impl_->original_working_dir_.c_str();
-}
-
-// Returns the random seed used at the start of the current test run.
-int UnitTest::random_seed() const { return impl_->random_seed(); }
-
 // Creates an empty UnitTest.
 UnitTest::UnitTest() {
   impl_ = new internal::UnitTestImpl(this);
@@ -3256,7 +3178,6 @@ UnitTestImpl::UnitTestImpl(UnitTest* parent)
       elapsed_time_(0),
       // Will be overridden by the flag before first use.
       catch_exceptions_(false) {
-  listeners()->SetDefaultResultPrinter(new PrettyUnitTestResultPrinter);
 }
 
 UnitTestImpl::~UnitTestImpl() {
