@@ -925,12 +925,6 @@ class TestEventListener {
   // Fired before any test activity starts.
   virtual void OnTestProgramStart(const UnitTest& unit_test) = 0;
 
-  // Fired before each iteration of tests starts.  There may be more than
-  // one iteration if GTEST_FLAG(repeat) is set. iteration is the iteration
-  // index, starting from 0.
-  virtual void OnTestIterationStart(const UnitTest& unit_test,
-                                    int iteration) = 0;
-
   // Fired before environment set-up for each iteration of tests starts.
   virtual void OnEnvironmentsSetUpStart(const UnitTest& unit_test) = 0;
 
@@ -958,10 +952,6 @@ class TestEventListener {
   // Fired after environment tear-down for each iteration of tests ends.
   virtual void OnEnvironmentsTearDownEnd(const UnitTest& unit_test) = 0;
 
-  // Fired after each iteration of tests finishes.
-  virtual void OnTestIterationEnd(const UnitTest& unit_test,
-                                  int iteration) = 0;
-
   // Fired after all test activities have ended.
   virtual void OnTestProgramEnd(const UnitTest& unit_test) = 0;
 };
@@ -974,8 +964,6 @@ class TestEventListener {
 class EmptyTestEventListener : public TestEventListener {
  public:
   virtual void OnTestProgramStart(const UnitTest& /*unit_test*/) {}
-  virtual void OnTestIterationStart(const UnitTest& /*unit_test*/,
-                                    int /*iteration*/) {}
   virtual void OnEnvironmentsSetUpStart(const UnitTest& /*unit_test*/) {}
   virtual void OnEnvironmentsSetUpEnd(const UnitTest& /*unit_test*/) {}
   virtual void OnTestCaseStart(const TestCase& /*test_case*/) {}
@@ -985,8 +973,6 @@ class EmptyTestEventListener : public TestEventListener {
   virtual void OnTestCaseEnd(const TestCase& /*test_case*/) {}
   virtual void OnEnvironmentsTearDownStart(const UnitTest& /*unit_test*/) {}
   virtual void OnEnvironmentsTearDownEnd(const UnitTest& /*unit_test*/) {}
-  virtual void OnTestIterationEnd(const UnitTest& /*unit_test*/,
-                                  int /*iteration*/) {}
   virtual void OnTestProgramEnd(const UnitTest& /*unit_test*/) {}
 };
 

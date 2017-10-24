@@ -958,17 +958,6 @@ class StreamingListener : public EmptyTestEventListener {
     socket_writer_->CloseConnection();
   }
 
-  void OnTestIterationStart(const UnitTest& /* unit_test */, int iteration) {
-    SendLn("event=TestIterationStart&iteration=" +
-           StreamableToString(iteration));
-  }
-
-  void OnTestIterationEnd(const UnitTest& unit_test, int /* iteration */) {
-    SendLn("event=TestIterationEnd&passed=" +
-           FormatBool(unit_test.Passed()) + "&elapsed_time=" +
-           StreamableToString(unit_test.elapsed_time()) + "ms");
-  }
-
   void OnTestCaseStart(const TestCase& test_case) {
     SendLn(std::string("event=TestCaseStart&name=") + test_case.name());
   }

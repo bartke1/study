@@ -2504,7 +2504,6 @@ class PrettyUnitTestResultPrinter : public TestEventListener {
 
   // The following methods override what's in the TestEventListener class.
   virtual void OnTestProgramStart(const UnitTest& /*unit_test*/) {}
-  virtual void OnTestIterationStart(const UnitTest& unit_test, int iteration);
   virtual void OnEnvironmentsSetUpStart(const UnitTest& unit_test);
   virtual void OnEnvironmentsSetUpEnd(const UnitTest& /*unit_test*/) {}
   virtual void OnTestCaseStart(const TestCase& test_case);
@@ -2514,48 +2513,11 @@ class PrettyUnitTestResultPrinter : public TestEventListener {
   virtual void OnTestCaseEnd(const TestCase& test_case);
   virtual void OnEnvironmentsTearDownStart(const UnitTest& unit_test);
   virtual void OnEnvironmentsTearDownEnd(const UnitTest& /*unit_test*/) {}
-  virtual void OnTestIterationEnd(const UnitTest& unit_test, int iteration);
   virtual void OnTestProgramEnd(const UnitTest& /*unit_test*/) {}
 
  private:
   static void PrintFailedTests(const UnitTest& unit_test);
 };
-
-  // Fired before each iteration of tests starts.
-void PrettyUnitTestResultPrinter::OnTestIterationStart(
-    const UnitTest& unit_test, int iteration) {
-  if (GTEST_FLAG(repeat) != 1)
-    printf("\nRepeating all tests (iteration %d) . . .\n\n", iteration + 1);
-
-  const char* const filter = GTEST_FLAG(filter).c_str();
-
-  // Prints the filter if it's not *.  This reminds the user that some
-  // tests may be skipped.
-  if (!String::CStringEquals(filter, kUniversalFilter)) {
-    ColoredPrintf(COLOR_YELLOW,
-                  "Note: %s filter = %s\n", GTEST_NAME_, filter);
-  }
-
-  if (internal::ShouldShard(kTestTotalShards, kTestShardIndex, false)) {
-    const Int32 shard_index = Int32FromEnvOrDie(kTestShardIndex, -1);
-    ColoredPrintf(COLOR_YELLOW,
-                  "Note: This is test shard %d of %s.\n",
-                  static_cast<int>(shard_index) + 1,
-                  internal::posix::GetEnv(kTestTotalShards));
-  }
-
-  if (GTEST_FLAG(shuffle)) {
-    ColoredPrintf(COLOR_YELLOW,
-                  "Note: Randomizing tests' orders with a seed of %d .\n",
-                  unit_test.random_seed());
-  }
-
-  ColoredPrintf(COLOR_GREEN,  "[==========] ");
-  printf("Running %s from %s.\n",
-         FormatTestCount(unit_test.test_to_run_count()).c_str(),
-         FormatTestCaseCount(unit_test.test_case_to_run_count()).c_str());
-  fflush(stdout);
-}
 
 void PrettyUnitTestResultPrinter::OnEnvironmentsSetUpStart(
     const UnitTest& /*unit_test*/) {
@@ -2659,44 +2621,6 @@ void PrettyUnitTestResultPrinter::PrintFailedTests(const UnitTest& unit_test) {
   }
 }
 
-void PrettyUnitTestResultPrinter::OnTestIterationEnd(const UnitTest& unit_test,
-                                                     int /*iteration*/) {
-  ColoredPrintf(COLOR_GREEN,  "[==========] ");
-  printf("%s from %s ran.",
-         FormatTestCount(unit_test.test_to_run_count()).c_str(),
-         FormatTestCaseCount(unit_test.test_case_to_run_count()).c_str());
-  if (GTEST_FLAG(print_time)) {
-    printf(" (%s ms total)",
-           internal::StreamableToString(unit_test.elapsed_time()).c_str());
-  }
-  printf("\n");
-  ColoredPrintf(COLOR_GREEN,  "[  PASSED  ] ");
-  printf("%s.\n", FormatTestCount(unit_test.successful_test_count()).c_str());
-
-  int num_failures = unit_test.failed_test_count();
-  if (!unit_test.Passed()) {
-    const int failed_test_count = unit_test.failed_test_count();
-    ColoredPrintf(COLOR_RED,  "[  FAILED  ] ");
-    printf("%s, listed below:\n", FormatTestCount(failed_test_count).c_str());
-    PrintFailedTests(unit_test);
-    printf("\n%2d FAILED %s\n", num_failures,
-                        num_failures == 1 ? "TEST" : "TESTS");
-  }
-
-  int num_disabled = unit_test.reportable_disabled_test_count();
-  if (num_disabled && !GTEST_FLAG(also_run_disabled_tests)) {
-    if (!num_failures) {
-      printf("\n");  // Add a spacer if no FAILURE banner is displayed.
-    }
-    ColoredPrintf(COLOR_YELLOW,
-                  "  YOU HAVE %d DISABLED %s\n\n",
-                  num_disabled,
-                  num_disabled == 1 ? "TEST" : "TESTS");
-  }
-  // Ensure that Google Test output is printed before, e.g., heapchecker output.
-  fflush(stdout);
-}
-
 // End PrettyUnitTestResultPrinter
 
 // class TestEventRepeater
@@ -2715,7 +2639,6 @@ class TestEventRepeater : public TestEventListener {
   void set_forwarding_enabled(bool enable) { forwarding_enabled_ = enable; }
 
   virtual void OnTestProgramStart(const UnitTest& unit_test);
-  virtual void OnTestIterationStart(const UnitTest& unit_test, int iteration);
   virtual void OnEnvironmentsSetUpStart(const UnitTest& unit_test);
   virtual void OnEnvironmentsSetUpEnd(const UnitTest& unit_test);
   virtual void OnTestCaseStart(const TestCase& test_case);
@@ -2725,7 +2648,6 @@ class TestEventRepeater : public TestEventListener {
   virtual void OnTestCaseEnd(const TestCase& test_case);
   virtual void OnEnvironmentsTearDownStart(const UnitTest& unit_test);
   virtual void OnEnvironmentsTearDownEnd(const UnitTest& unit_test);
-  virtual void OnTestIterationEnd(const UnitTest& unit_test, int iteration);
   virtual void OnTestProgramEnd(const UnitTest& unit_test);
 
  private:
@@ -2794,32 +2716,12 @@ GTEST_REVERSE_REPEATER_METHOD_(OnTestProgramEnd, UnitTest)
 #undef GTEST_REPEATER_METHOD_
 #undef GTEST_REVERSE_REPEATER_METHOD_
 
-void TestEventRepeater::OnTestIterationStart(const UnitTest& unit_test,
-                                             int iteration) {
-  if (forwarding_enabled_) {
-    for (size_t i = 0; i < listeners_.size(); i++) {
-      listeners_[i]->OnTestIterationStart(unit_test, iteration);
-    }
-  }
-}
-
-void TestEventRepeater::OnTestIterationEnd(const UnitTest& unit_test,
-                                           int iteration) {
-  if (forwarding_enabled_) {
-    for (int i = static_cast<int>(listeners_.size()) - 1; i >= 0; i--) {
-      listeners_[i]->OnTestIterationEnd(unit_test, iteration);
-    }
-  }
-}
-
 // End TestEventRepeater
 
 // This class generates an XML output file.
 class XmlUnitTestResultPrinter : public EmptyTestEventListener {
  public:
   explicit XmlUnitTestResultPrinter(const char* output_file);
-
-  virtual void OnTestIterationEnd(const UnitTest& unit_test, int iteration);
 
  private:
   // Is c a whitespace character that is normalized to a space character
@@ -2895,39 +2797,6 @@ XmlUnitTestResultPrinter::XmlUnitTestResultPrinter(const char* output_file)
     fflush(stderr);
     exit(EXIT_FAILURE);
   }
-}
-
-// Called after the unit test ends.
-void XmlUnitTestResultPrinter::OnTestIterationEnd(const UnitTest& unit_test,
-                                                  int /*iteration*/) {
-  FILE* xmlout = NULL;
-  FilePath output_file(output_file_);
-  FilePath output_dir(output_file.RemoveFileName());
-
-  if (output_dir.CreateDirectoriesRecursively()) {
-    xmlout = posix::FOpen(output_file_.c_str(), "w");
-  }
-  if (xmlout == NULL) {
-    // TODO(wan): report the reason of the failure.
-    //
-    // We don't do it for now as:
-    //
-    //   1. There is no urgent need for it.
-    //   2. It's a bit involved to make the errno variable thread-safe on
-    //      all three operating systems (Linux, Windows, and Mac OS).
-    //   3. To interpret the meaning of errno in a thread-safe way,
-    //      we need the strerror_r() function, which is not available on
-    //      Windows.
-    fprintf(stderr,
-            "Unable to open file \"%s\"\n",
-            output_file_.c_str());
-    fflush(stderr);
-    exit(EXIT_FAILURE);
-  }
-  std::stringstream stream;
-  PrintXmlUnitTest(&stream, unit_test);
-  fprintf(xmlout, "%s", StringStreamToString(&stream).c_str());
-  fclose(xmlout);
 }
 
 // Returns an XML-escaped copy of the input string str.  If is_attribute
@@ -3769,74 +3638,6 @@ bool UnitTestImpl::RunAllTests() {
     return true;
 }
 
-// Reads the GTEST_SHARD_STATUS_FILE environment variable, and creates the file
-// if the variable is present. If a file already exists at this location, this
-// function will write over it. If the variable is present, but the file cannot
-// be created, prints an error and exits.
-void WriteToShardStatusFileIfNeeded() {
-  const char* const test_shard_file = posix::GetEnv(kTestShardStatusFile);
-  if (test_shard_file != NULL) {
-    FILE* const file = posix::FOpen(test_shard_file, "w");
-    if (file == NULL) {
-      ColoredPrintf(COLOR_RED,
-                    "Could not write to the test shard status file \"%s\" "
-                    "specified by the %s environment variable.\n",
-                    test_shard_file, kTestShardStatusFile);
-      fflush(stdout);
-      exit(EXIT_FAILURE);
-    }
-    fclose(file);
-  }
-}
-
-// Checks whether sharding is enabled by examining the relevant
-// environment variable values. If the variables are present,
-// but inconsistent (i.e., shard_index >= total_shards), prints
-// an error and exits. If in_subprocess_for_death_test, sharding is
-// disabled because it must only be applied to the original test
-// process. Otherwise, we could filter out death tests we intended to execute.
-bool ShouldShard(const char* total_shards_env,
-                 const char* shard_index_env,
-                 bool in_subprocess_for_death_test) {
-  if (in_subprocess_for_death_test) {
-    return false;
-  }
-
-  const Int32 total_shards = Int32FromEnvOrDie(total_shards_env, -1);
-  const Int32 shard_index = Int32FromEnvOrDie(shard_index_env, -1);
-
-  if (total_shards == -1 && shard_index == -1) {
-    return false;
-  } else if (total_shards == -1 && shard_index != -1) {
-    const Message msg = Message()
-      << "Invalid environment variables: you have "
-      << kTestShardIndex << " = " << shard_index
-      << ", but have left " << kTestTotalShards << " unset.\n";
-    ColoredPrintf(COLOR_RED, msg.GetString().c_str());
-    fflush(stdout);
-    exit(EXIT_FAILURE);
-  } else if (total_shards != -1 && shard_index == -1) {
-    const Message msg = Message()
-      << "Invalid environment variables: you have "
-      << kTestTotalShards << " = " << total_shards
-      << ", but have left " << kTestShardIndex << " unset.\n";
-    ColoredPrintf(COLOR_RED, msg.GetString().c_str());
-    fflush(stdout);
-    exit(EXIT_FAILURE);
-  } else if (shard_index < 0 || shard_index >= total_shards) {
-    const Message msg = Message()
-      << "Invalid environment variables: we require 0 <= "
-      << kTestShardIndex << " < " << kTestTotalShards
-      << ", but you have " << kTestShardIndex << "=" << shard_index
-      << ", " << kTestTotalShards << "=" << total_shards << ".\n";
-    ColoredPrintf(COLOR_RED, msg.GetString().c_str());
-    fflush(stdout);
-    exit(EXIT_FAILURE);
-  }
-
-  return total_shards > 1;
-}
-
 // Parses the environment variable var as an Int32. If it is unset,
 // returns default_val. If it is not an Int32, prints an error
 // and aborts.
@@ -3852,14 +3653,6 @@ Int32 Int32FromEnvOrDie(const char* var, Int32 default_val) {
     exit(EXIT_FAILURE);
   }
   return result;
-}
-
-// Given the total number of shards, the shard index, and the test id,
-// returns true iff the test should be run on this shard. The test id is
-// some arbitrary but unique non-negative integer assigned to each test
-// method. Assumes that 0 <= shard_index < total_shards.
-bool ShouldRunTestOnShard(int total_shards, int shard_index, int test_id) {
-  return (test_id % total_shards) == shard_index;
 }
 
 // Compares the name of each test with the user-specified filter to
@@ -3907,10 +3700,7 @@ int UnitTestImpl::FilterTests(ReactionToSharding shard_tests) {
           (GTEST_FLAG(also_run_disabled_tests) || !is_disabled) &&
           matches_filter;
 
-      const bool is_selected = is_runnable &&
-          (shard_tests == IGNORE_SHARDING_PROTOCOL ||
-           ShouldRunTestOnShard(total_shards, shard_index,
-                                num_runnable_tests));
+      const bool is_selected = true;
 
       num_runnable_tests += is_runnable;
       num_selected_tests += is_selected;
