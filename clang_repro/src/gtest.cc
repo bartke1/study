@@ -2938,20 +2938,6 @@ UnitTest::~UnitTest() {
 
 namespace internal {
 
-// Runs all tests in this UnitTest object, prints the result, and
-// returns true if all tests are successful.  If any exception is
-// thrown during a test, the test is considered to be failed, but the
-// rest of the tests will still be run.
-//
-// When parameterized tests are enabled, it expands and registers
-// parameterized tests first in RegisterParameterizedTests().
-// All other functions called from RunAllTests() may safely assume that
-// parameterized tests are ready to be counted and run.
-bool UnitTestImpl::RunAllTests() {
-    tc_->Run();
-    return true;
-}
-
 // Used by the GTEST_SUPPRESS_UNREACHABLE_CODE_WARNING_BELOW_ macro to
 // suppress unreachable code warnings.
 namespace {

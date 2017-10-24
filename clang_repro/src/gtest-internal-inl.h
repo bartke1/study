@@ -476,13 +476,15 @@ class GTEST_API_ UnitTestImpl {
   {}
 
   void AddTestInfo(TestInfo* test_info) {
-      tc_ = new TestCase("", 0, 0, 0);
-      tc_->AddTestInfo(test_info);
+      ti_ = test_info;
   }
 
-  bool RunAllTests();
+  bool RunAllTests() {
+      ti_->Run();
+      return true;
+  }
 
-  TestCase* tc_;
+  TestInfo* ti_;
 };  // class UnitTestImpl
 
 // Convenience function for accessing the global UnitTest

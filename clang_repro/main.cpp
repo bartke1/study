@@ -64,9 +64,8 @@ using namespace ::testing::internal;
 
 int main(int argc, char* argv[])
 {
-    UnitTest::GetInstance()->impl()->AddTestInfo(
-            new TestInfo(
-                    new TestFactoryImpl<T>));
+//    factory_->CreateTest()->Run();
 
-    return UnitTest::GetInstance()->Run();
+    TestInfo* ti = new TestInfo(new TestFactoryImpl<T>);
+    ti->Run();
 }
