@@ -1,11 +1,10 @@
 #include <cstring>
 
-struct Z
+struct X
 {
-    char x[16];
-    char y[69160] __attribute__((aligned(16)));
+    char x[66289] __attribute__((aligned(16)));
 
-    Z()
+    X()
     {
         std::memset(x, 0, 16);
     }
@@ -13,5 +12,5 @@ struct Z
 
 int main()
 {
-    new Z[2];
+    new X[2];
 }
