@@ -645,7 +645,7 @@ using ::std::tuple_size;
      (GTEST_OS_WINDOWS_DESKTOP && _MSC_VER >= 1400) || \
      GTEST_OS_WINDOWS_MINGW || GTEST_OS_AIX || GTEST_OS_HPUX || \
      GTEST_OS_OPENBSD || GTEST_OS_QNX)
-# define GTEST_HAS_DEATH_TEST 1
+# define GTEST_HAS_DEATH_TEST 0
 # include <vector>  // NOLINT
 #endif
 
@@ -1164,17 +1164,6 @@ GTEST_API_ std::string GetCapturedStderr();
 
 #endif  // GTEST_HAS_STREAM_REDIRECTION
 
-
-#if GTEST_HAS_DEATH_TEST
-
-const ::std::vector<testing::internal::string>& GetInjectableArgvs();
-void SetInjectableArgvs(const ::std::vector<testing::internal::string>*
-                             new_argvs);
-
-// A copy of all command line arguments.  Set by InitGoogleTest().
-extern ::std::vector<testing::internal::string> g_argvs;
-
-#endif  // GTEST_HAS_DEATH_TEST
 
 // Defines synchronization primitives.
 

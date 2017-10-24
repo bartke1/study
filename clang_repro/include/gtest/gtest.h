@@ -648,9 +648,6 @@ class GTEST_API_ TestInfo {
   const TestResult* result() const { return &result_; }
 
  private:
-#if GTEST_HAS_DEATH_TEST
-  friend class internal::DefaultDeathTestFactory;
-#endif  // GTEST_HAS_DEATH_TEST
   friend class Test;
   friend class TestCase;
   friend class internal::UnitTestImpl;

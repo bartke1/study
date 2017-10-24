@@ -672,28 +672,6 @@ std::string GetCapturedStderr() {
 
 #endif  // GTEST_HAS_STREAM_REDIRECTION
 
-#if GTEST_HAS_DEATH_TEST
-
-// A copy of all command line arguments.  Set by InitGoogleTest().
-::std::vector<testing::internal::string> g_argvs;
-
-static const ::std::vector<testing::internal::string>* g_injected_test_argvs =
-                                        NULL;  // Owned.
-
-void SetInjectableArgvs(const ::std::vector<testing::internal::string>* argvs) {
-  if (g_injected_test_argvs != argvs)
-    delete g_injected_test_argvs;
-  g_injected_test_argvs = argvs;
-}
-
-const ::std::vector<testing::internal::string>& GetInjectableArgvs() {
-  if (g_injected_test_argvs != NULL) {
-    return *g_injected_test_argvs;
-  }
-  return g_argvs;
-}
-#endif  // GTEST_HAS_DEATH_TEST
-
 #if GTEST_OS_WINDOWS_MOBILE
 namespace posix {
 void Abort() {

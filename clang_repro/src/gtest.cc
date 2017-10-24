@@ -3605,9 +3605,6 @@ UnitTestImpl::UnitTestImpl(UnitTest* parent)
       random_(0),  // Will be reseeded before first use.
       start_timestamp_(0),
       elapsed_time_(0),
-#if GTEST_HAS_DEATH_TEST
-      death_test_factory_(new DefaultDeathTestFactory),
-#endif
       // Will be overridden by the flag before first use.
       catch_exceptions_(false) {
   listeners()->SetDefaultResultPrinter(new PrettyUnitTestResultPrinter);
@@ -3622,15 +3619,6 @@ UnitTestImpl::~UnitTestImpl() {
 
   delete os_stack_trace_getter_;
 }
-
-#if GTEST_HAS_DEATH_TEST
-// Disables event forwarding if the control is currently in a death test
-// subprocess. Must not be called before InitGoogleTest.
-void UnitTestImpl::SuppressTestEventsIfInSubprocess() {
-  if (internal_run_death_test_flag_.get() != NULL)
-    listeners()->SuppressEventForwarding();
-}
-#endif  // GTEST_HAS_DEATH_TEST
 
 // Initializes event listeners performing XML output as specified by
 // UnitTestOptions. Must not be called before InitGoogleTest.
@@ -3674,11 +3662,6 @@ void UnitTestImpl::PostFlagParsingInit() {
   // Ensures that this function does not execute more than once.
   if (!post_flag_parse_init_performed_) {
     post_flag_parse_init_performed_ = true;
-
-#if GTEST_HAS_DEATH_TEST
-    InitDeathTestSubprocessControlInfo();
-    SuppressTestEventsIfInSubprocess();
-#endif  // GTEST_HAS_DEATH_TEST
 
     // Registers parameterized tests. This makes parameterized tests
     // available to the UnitTest reflection API without running
@@ -4292,10 +4275,6 @@ static const char kColorEncodedHelpMessage[] =
 #endif  // GTEST_CAN_STREAM_RESULTS_
 "\n"
 "Assertion Behavior:\n"
-#if GTEST_HAS_DEATH_TEST && !GTEST_OS_WINDOWS
-"  @G--" GTEST_FLAG_PREFIX_ "death_test_style=@Y(@Gfast@Y|@Gthreadsafe@Y)@D\n"
-"      Set the default death test style.\n"
-#endif  // GTEST_HAS_DEATH_TEST && !GTEST_OS_WINDOWS
 "  @G--" GTEST_FLAG_PREFIX_ "break_on_failure@D\n"
 "      Turn assertion failures into debugger break-points.\n"
 "  @G--" GTEST_FLAG_PREFIX_ "throw_on_failure@D\n"
@@ -4411,15 +4390,6 @@ void InitGoogleTestImpl(int* argc, CharType** argv) {
   if (*argc <= 0) return;
 
   internal::g_executable_path = internal::StreamableToString(argv[0]);
-
-#if GTEST_HAS_DEATH_TEST
-
-  g_argvs.clear();
-  for (int i = 0; i != *argc; i++) {
-    g_argvs.push_back(StreamableToString(argv[i]));
-  }
-
-#endif  // GTEST_HAS_DEATH_TEST
 
   ParseGoogleTestFlagsOnly(argc, argv);
   GetUnitTestImpl()->PostFlagParsingInit();

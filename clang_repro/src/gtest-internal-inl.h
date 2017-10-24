@@ -696,28 +696,6 @@ class GTEST_API_ UnitTestImpl {
   // before/after the tests are run.
   std::vector<Environment*>& environments() { return environments_; }
 
-#if GTEST_HAS_DEATH_TEST
-  void InitDeathTestSubprocessControlInfo() {
-    internal_run_death_test_flag_.reset(ParseInternalRunDeathTestFlag());
-  }
-  // Returns a pointer to the parsed --gtest_internal_run_death_test
-  // flag, or NULL if that flag was not specified.
-  // This information is useful only in a death test child process.
-  // Must not be called before a call to InitGoogleTest.
-  const InternalRunDeathTestFlag* internal_run_death_test_flag() const {
-    return internal_run_death_test_flag_.get();
-  }
-
-  // Returns a pointer to the current death test factory.
-  internal::DeathTestFactory* death_test_factory() {
-    return death_test_factory_.get();
-  }
-
-  void SuppressTestEventsIfInSubprocess();
-
-  friend class ReplaceDeathTestFactory;
-#endif  // GTEST_HAS_DEATH_TEST
-
   // Initializes the event listener performing XML output as specified by
   // UnitTestOptions. Must not be called before InitGoogleTest.
   void ConfigureXmlOutput();
@@ -846,13 +824,6 @@ class GTEST_API_ UnitTestImpl {
   // How long the test took to run, in milliseconds.
   TimeInMillis elapsed_time_;
 
-#if GTEST_HAS_DEATH_TEST
-  // The decomposed components of the gtest_internal_run_death_test flag,
-  // parsed when RUN_ALL_TESTS is called.
-  internal::scoped_ptr<InternalRunDeathTestFlag> internal_run_death_test_flag_;
-  internal::scoped_ptr<internal::DeathTestFactory> death_test_factory_;
-#endif  // GTEST_HAS_DEATH_TEST
-
   // The value of GTEST_FLAG(catch_exceptions) at the moment RunAllTests()
   // starts.
   bool catch_exceptions_;
@@ -890,84 +861,6 @@ GTEST_API_ bool MatchRegexAnywhere(const char* regex, const char* str);
 // other parts of Google Test.
 GTEST_API_ void ParseGoogleTestFlagsOnly(int* argc, char** argv);
 GTEST_API_ void ParseGoogleTestFlagsOnly(int* argc, wchar_t** argv);
-
-#if GTEST_HAS_DEATH_TEST
-
-// Returns the message describing the last system error, regardless of the
-// platform.
-GTEST_API_ std::string GetLastErrnoDescription();
-
-# if GTEST_OS_WINDOWS
-// Provides leak-safe Windows kernel handle ownership.
-class AutoHandle {
- public:
-  AutoHandle() : handle_(INVALID_HANDLE_VALUE) {}
-  explicit AutoHandle(HANDLE handle) : handle_(handle) {}
-
-  ~AutoHandle() { Reset(); }
-
-  HANDLE Get() const { return handle_; }
-  void Reset() { Reset(INVALID_HANDLE_VALUE); }
-  void Reset(HANDLE handle) {
-    if (handle != handle_) {
-      if (handle_ != INVALID_HANDLE_VALUE)
-        ::CloseHandle(handle_);
-      handle_ = handle;
-    }
-  }
-
- private:
-  HANDLE handle_;
-
-  GTEST_DISALLOW_COPY_AND_ASSIGN_(AutoHandle);
-};
-# endif  // GTEST_OS_WINDOWS
-
-// Attempts to parse a string into a positive integer pointed to by the
-// number parameter.  Returns true if that is possible.
-// GTEST_HAS_DEATH_TEST implies that we have ::std::string, so we can use
-// it here.
-template <typename Integer>
-bool ParseNaturalNumber(const ::std::string& str, Integer* number) {
-  // Fail fast if the given string does not begin with a digit;
-  // this bypasses strtoXXX's "optional leading whitespace and plus
-  // or minus sign" semantics, which are undesirable here.
-  if (str.empty() || !IsDigit(str[0])) {
-    return false;
-  }
-  errno = 0;
-
-  char* end;
-  // BiggestConvertible is the largest integer type that system-provided
-  // string-to-number conversion routines can return.
-
-# if GTEST_OS_WINDOWS && !defined(__GNUC__)
-
-  // MSVC and C++ Builder define __int64 instead of the standard long long.
-  typedef unsigned __int64 BiggestConvertible;
-  const BiggestConvertible parsed = _strtoui64(str.c_str(), &end, 10);
-
-# else
-
-  typedef unsigned long long BiggestConvertible;  // NOLINT
-  const BiggestConvertible parsed = strtoull(str.c_str(), &end, 10);
-
-# endif  // GTEST_OS_WINDOWS && !defined(__GNUC__)
-
-  const bool parse_success = *end == '\0' && errno == 0;
-
-  // TODO(vladl@google.com): Convert this to compile time assertion when it is
-  // available.
-  GTEST_CHECK_(sizeof(Integer) <= sizeof(parsed));
-
-  const Integer result = static_cast<Integer>(parsed);
-  if (parse_success && static_cast<BiggestConvertible>(result) == parsed) {
-    *number = result;
-    return true;
-  }
-  return false;
-}
-#endif  // GTEST_HAS_DEATH_TEST
 
 // TestResult contains some private methods that should be hidden from
 // Google Test user but are required for testing. This class allow our tests
