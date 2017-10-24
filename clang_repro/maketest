@@ -2,7 +2,5 @@
 
 CLANG=clang++-3.8
 
-${CLANG} -o Tests.o -c -m32 -fstack-protector-all -std=c++98 -g -O0 Tests.cpp
-${CLANG} -o main.o -m32 -c main.cpp -std=c++98
-${CLANG} -o Test Tests.o -lpthread -m32 main.o -L/usr/local/lib32 -lgtest
-./Test
+${CLANG} -m32 -fstack-protector-all -std=c++98 -g -O0 Tests.cpp main.cpp -L/usr/local/lib32 -lgtest -lpthread && \
+./a.out
