@@ -2938,24 +2938,6 @@ UnitTest::~UnitTest() {
 
 namespace internal {
 
-// Finds and returns a TestCase with the given name.  If one doesn't
-// exist, creates one and returns it.  It's the CALLER'S
-// RESPONSIBILITY to ensure that this function is only called WHEN THE
-// TESTS ARE NOT SHUFFLED.
-//
-// Arguments:
-//
-//   test_case_name: name of the test case
-//   type_param:     the name of the test case's type parameter, or NULL if
-//                   this is not a typed or a type-parameterized test case.
-//   set_up_tc:      pointer to the function that sets up the test case
-//   tear_down_tc:   pointer to the function that tears down the test case
-TestCase* UnitTestImpl::GetTestCase() {
-  TestCase* const new_test_case = new TestCase("", 0, 0, 0);
-  test_cases_.push_back(new_test_case);
-  return new_test_case;
-}
-
 // Runs all tests in this UnitTest object, prints the result, and
 // returns true if all tests are successful.  If any exception is
 // thrown during a test, the test is considered to be failed, but the
@@ -2966,23 +2948,8 @@ TestCase* UnitTestImpl::GetTestCase() {
 // All other functions called from RunAllTests() may safely assume that
 // parameterized tests are ready to be counted and run.
 bool UnitTestImpl::RunAllTests() {
-    FilterTests();
-    test_cases_[0]->Run();
+    tc_->Run();
     return true;
-}
-
-// Compares the name of each test with the user-specified filter to
-// decide whether the test should be run, then records the result in
-// each TestCase and TestInfo object.
-// If shard_tests == true, further filters tests based on sharding
-// variables in the environment - see
-// http://code.google.com/p/googletest/wiki/GoogleTestAdvancedGuide.
-// Returns the number of tests that should run.
-int UnitTestImpl::FilterTests() {
-    TestCase* const test_case = test_cases_[0];
-    TestInfo* const test_info = test_case->test_info_list_[0];
-    test_info->should_run_ = true;
-    return 1;
 }
 
 // Used by the GTEST_SUPPRESS_UNREACHABLE_CODE_WARNING_BELOW_ macro to

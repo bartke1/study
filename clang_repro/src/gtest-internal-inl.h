@@ -475,16 +475,14 @@ class GTEST_API_ UnitTestImpl {
   UnitTestImpl(UnitTest* parent)
   {}
 
-  TestCase* GetTestCase();
-
   void AddTestInfo(TestInfo* test_info) {
-    GetTestCase()->AddTestInfo(test_info);
+      tc_ = new TestCase("", 0, 0, 0);
+      tc_->AddTestInfo(test_info);
   }
 
   bool RunAllTests();
-  int FilterTests();
 
-  std::vector<TestCase*> test_cases_;
+  TestCase* tc_;
 };  // class UnitTestImpl
 
 // Convenience function for accessing the global UnitTest
