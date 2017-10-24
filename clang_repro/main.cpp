@@ -1,9 +1,12 @@
 // Copyright 2017 Nokia. All rights reserved.
 
+#define GTEST_IMPLEMENTATION_ 1
+
 #include <cstdio>
 #include <cstring>
 #include <stdint.h>
 #include <gtest/gtest.h>
+#include "src/gtest-internal-inl.h"
 
 struct C
 {
@@ -54,14 +57,13 @@ struct T : public testing::Test
 {
     A x;
     virtual void TestBody(){};
-    static ::testing::TestInfo* const test_info_ __attribute__((unused));
 };
-
-::testing::TestInfo* const T::test_info_ =
-    ::testing::internal::MakeAndRegisterTestInfo(
-        new ::testing::internal::TestFactoryImpl<T>);
 
 int main(int argc, char* argv[])
 {
+    ::testing::UnitTest::GetInstance()->impl()->AddTestInfo(
+            new ::testing::TestInfo(
+                    new ::testing::internal::TestFactoryImpl<T>));
+
     return testing::UnitTest::GetInstance()->Run();
 }
