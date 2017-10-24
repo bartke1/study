@@ -546,8 +546,7 @@ class GTEST_API_ UnitTestImpl {
   // Gets the i-th test case among all the test cases. i can range from 0 to
   // total_test_case_count() - 1. If i is not in that range, returns NULL.
   TestCase* GetMutableTestCase(int i) {
-    const int index = GetElementOr(test_case_indices_, i, -1);
-    return index < 0 ? NULL : test_cases_[index];
+      return test_cases_[0];
   }
 
   // Provides access to the event listener list.

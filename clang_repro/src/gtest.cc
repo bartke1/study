@@ -3618,11 +3618,6 @@ TestCase* UnitTestImpl::GetTestCase(const char* test_case_name,
   return new_test_case;
 }
 
-// Helpers for setting up / tearing down the given environment.  They
-// are for use in the ForEach() function.
-static void SetUpEnvironment(Environment* env) { env->SetUp(); }
-static void TearDownEnvironment(Environment* env) { env->TearDown(); }
-
 // Runs all tests in this UnitTest object, prints the result, and
 // returns true if all tests are successful.  If any exception is
 // thrown during a test, the test is considered to be failed, but the
@@ -3634,25 +3629,8 @@ static void TearDownEnvironment(Environment* env) { env->TearDown(); }
 // parameterized tests are ready to be counted and run.
 bool UnitTestImpl::RunAllTests() {
     FilterTests(IGNORE_SHARDING_PROTOCOL);
-    GetMutableTestCase(0)->Run();
+    test_cases_[0]->Run();
     return true;
-}
-
-// Parses the environment variable var as an Int32. If it is unset,
-// returns default_val. If it is not an Int32, prints an error
-// and aborts.
-Int32 Int32FromEnvOrDie(const char* var, Int32 default_val) {
-  const char* str_val = posix::GetEnv(var);
-  if (str_val == NULL) {
-    return default_val;
-  }
-
-  Int32 result;
-  if (!ParseInt32(Message() << "The value of environment variable " << var,
-                  str_val, &result)) {
-    exit(EXIT_FAILURE);
-  }
-  return result;
 }
 
 // Compares the name of each test with the user-specified filter to
@@ -3664,82 +3642,9 @@ Int32 Int32FromEnvOrDie(const char* var, Int32 default_val) {
 // Returns the number of tests that should run.
 int UnitTestImpl::FilterTests(ReactionToSharding shard_tests) {
     TestCase* const test_case = test_cases_[0];
-    TestInfo* const test_info = test_case->test_info_list()[0];
+    TestInfo* const test_info = test_case->test_info_list_[0];
     test_info->should_run_ = true;
     return 1;
-}
-
-// Prints the given C-string on a single line by replacing all '\n'
-// characters with string "\\n".  If the output takes more than
-// max_length characters, only prints the first max_length characters
-// and "...".
-static void PrintOnOneLine(const char* str, int max_length) {
-  if (str != NULL) {
-    for (int i = 0; *str != '\0'; ++str) {
-      if (i >= max_length) {
-        printf("...");
-        break;
-      }
-      if (*str == '\n') {
-        printf("\\n");
-        i += 2;
-      } else {
-        printf("%c", *str);
-        ++i;
-      }
-    }
-  }
-}
-
-// Prints the names of the tests matching the user-specified filter flag.
-void UnitTestImpl::ListTestsMatchingFilter() {
-  // Print at most this many characters for each type/value parameter.
-  const int kMaxParamLength = 250;
-
-  for (size_t i = 0; i < test_cases_.size(); i++) {
-    const TestCase* const test_case = test_cases_[i];
-    bool printed_test_case_name = false;
-
-    for (size_t j = 0; j < test_case->test_info_list().size(); j++) {
-      const TestInfo* const test_info =
-          test_case->test_info_list()[j];
-      if (test_info->matches_filter_) {
-        if (!printed_test_case_name) {
-          printed_test_case_name = true;
-          printf("%s.", test_case->name());
-          if (test_case->type_param() != NULL) {
-            printf("  # %s = ", kTypeParamLabel);
-            // We print the type parameter on a single line to make
-            // the output easy to parse by a program.
-            PrintOnOneLine(test_case->type_param(), kMaxParamLength);
-          }
-          printf("\n");
-        }
-        printf("  %s", test_info->name());
-        if (test_info->value_param() != NULL) {
-          printf("  # %s = ", kValueParamLabel);
-          // We print the value parameter on a single line to make the
-          // output easy to parse by a program.
-          PrintOnOneLine(test_info->value_param(), kMaxParamLength);
-        }
-        printf("\n");
-      }
-    }
-  }
-  fflush(stdout);
-}
-
-// Sets the OS stack trace getter.
-//
-// Does nothing if the input and the current OS stack trace getter are
-// the same; otherwise, deletes the old getter and makes the input the
-// current getter.
-void UnitTestImpl::set_os_stack_trace_getter(
-    OsStackTraceGetterInterface* getter) {
-  if (os_stack_trace_getter_ != getter) {
-    delete os_stack_trace_getter_;
-    os_stack_trace_getter_ = getter;
-  }
 }
 
 // Returns the current OS stack trace getter if it is not NULL;
@@ -3758,49 +3663,6 @@ OsStackTraceGetterInterface* UnitTestImpl::os_stack_trace_getter() {
 TestResult* UnitTestImpl::current_test_result() {
   return current_test_info_ ?
       &(current_test_info_->result_) : &ad_hoc_test_result_;
-}
-
-// Shuffles all test cases, and the tests within each test case,
-// making sure that death tests are still run first.
-void UnitTestImpl::ShuffleTests() {
-  // Shuffles the death test cases.
-  ShuffleRange(random(), 0, last_death_test_case_ + 1, &test_case_indices_);
-
-  // Shuffles the non-death test cases.
-  ShuffleRange(random(), last_death_test_case_ + 1,
-               static_cast<int>(test_cases_.size()), &test_case_indices_);
-
-  // Shuffles the tests inside each test case.
-  for (size_t i = 0; i < test_cases_.size(); i++) {
-    test_cases_[i]->ShuffleTests(random());
-  }
-}
-
-// Restores the test cases and tests to their order before the first shuffle.
-void UnitTestImpl::UnshuffleTests() {
-  for (size_t i = 0; i < test_cases_.size(); i++) {
-    // Unshuffles the tests in each test case.
-    test_cases_[i]->UnshuffleTests();
-    // Resets the index of each test case.
-    test_case_indices_[i] = static_cast<int>(i);
-  }
-}
-
-// Returns the current OS stack trace as an std::string.
-//
-// The maximum number of stack frames to be included is specified by
-// the gtest_stack_trace_depth flag.  The skip_count parameter
-// specifies the number of top frames to be skipped, which doesn't
-// count against the number of frames to be included.
-//
-// For example, if Foo() calls Bar(), which in turn calls
-// GetCurrentOsStackTraceExceptTop(..., 1), Foo() will be included in
-// the trace but Bar() and GetCurrentOsStackTraceExceptTop() won't.
-std::string GetCurrentOsStackTraceExceptTop(UnitTest* /*unit_test*/,
-                                            int skip_count) {
-  // We pass skip_count + 1 to skip this wrapper function in addition
-  // to what the user really wants to skip.
-  return GetUnitTestImpl()->CurrentOsStackTraceExceptTop(skip_count + 1);
 }
 
 // Used by the GTEST_SUPPRESS_UNREACHABLE_CODE_WARNING_BELOW_ macro to
