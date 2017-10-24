@@ -2,7 +2,7 @@
 #include <cstring>
 #include <stdint.h>
 
-struct C
+struct X
 {
     uint16_t     a;
     uint16_t     b;
@@ -23,36 +23,23 @@ struct C
     bool         r;
 };
 
-struct B
+struct Y
 {
-    C               c[246];
-};
-
-class A
-{
-public:
-    struct AA
+    struct Z
     {
-        float   theData[12];
-        B       otherData[10] __attribute__((aligned(16)));
+        char x[16];
+        X otherData[10][247] __attribute__((aligned(16)));
 
-        AA()
+        Z()
         {
-            printf("pre\n");
-            std::memset(&(theData[0]), 0, sizeof(theData));
-            printf("post\n");
+            std::memset(x, 0, 16);
         }
     };
 
-    AA aa[2];
-};
-
-struct T
-{
-    A x;
+    Z aa[2];
 };
 
 int main()
 {
-    new T;
+    new Y;
 }
