@@ -489,13 +489,6 @@ typedef void (*TearDownTestCaseFunc)();
 //                     The newly created TestInfo instance will assume
 //                     ownership of the factory object.
 GTEST_API_ TestInfo* MakeAndRegisterTestInfo(
-    const char* test_case_name,
-    const char* name,
-    const char* type_param,
-    const char* value_param,
-    TypeId fixture_class_id,
-    SetUpTestCaseFunc set_up_tc,
-    TearDownTestCaseFunc tear_down_tc,
     TestFactoryBase* factory);
 
 // If *pstr starts with the given prefix, modifies *pstr to be right
@@ -578,14 +571,6 @@ class TypeParameterizedTest {
     // First, registers the first type-parameterized test in the type
     // list.
     MakeAndRegisterTestInfo(
-        (std::string(prefix) + (prefix[0] == '\0' ? "" : "/") + case_name + "/"
-         + StreamableToString(index)).c_str(),
-        GetPrefixUntilComma(test_names).c_str(),
-        GetTypeName<Type>().c_str(),
-        NULL,  // No value parameter.
-        GetTypeId<FixtureClass>(),
-        TestClass::SetUpTestCase,
-        TestClass::TearDownTestCase,
         new TestFactoryImpl<TestClass>);
 
     // Next, recurses (at compile time) with the tail of the type list.

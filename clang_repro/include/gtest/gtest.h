@@ -656,13 +656,6 @@ class GTEST_API_ TestInfo {
   friend class internal::UnitTestImpl;
   friend class internal::StreamingListenerTest;
   friend TestInfo* internal::MakeAndRegisterTestInfo(
-      const char* test_case_name,
-      const char* name,
-      const char* type_param,
-      const char* value_param,
-      internal::TypeId fixture_class_id,
-      Test::SetUpTestCaseFunc set_up_tc,
-      Test::TearDownTestCaseFunc tear_down_tc,
       internal::TestFactoryBase* factory);
 
   // Constructs a TestInfo object. The newly constructed instance assumes

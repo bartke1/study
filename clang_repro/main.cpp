@@ -57,8 +57,6 @@ struct T : public testing::Test
 
 ::testing::TestInfo* const T::test_info_ =
     ::testing::internal::MakeAndRegisterTestInfo(
-        "ATest", "TheTest", __null, __null, (::testing::internal::GetTypeId<T>()),
-        T::SetUpTestCase, T::TearDownTestCase,
         new ::testing::internal::TestFactoryImpl<T>);
 
 int main(int argc, char* argv[])

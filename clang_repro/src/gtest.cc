@@ -2072,40 +2072,12 @@ namespace internal {
 //   factory:          pointer to the factory that creates a test object.
 //                     The newly created TestInfo instance will assume
 //                     ownership of the factory object.
-TestInfo* MakeAndRegisterTestInfo(
-    const char* test_case_name,
-    const char* name,
-    const char* type_param,
-    const char* value_param,
-    TypeId fixture_class_id,
-    SetUpTestCaseFunc set_up_tc,
-    TearDownTestCaseFunc tear_down_tc,
-    TestFactoryBase* factory) {
-  TestInfo* const test_info =
-      new TestInfo(test_case_name, name, type_param, value_param,
-                   fixture_class_id, factory);
-  GetUnitTestImpl()->AddTestInfo(set_up_tc, tear_down_tc, test_info);
+TestInfo* MakeAndRegisterTestInfo(TestFactoryBase* factory)
+{
+  TestInfo* const test_info = new TestInfo("", "", 0, 0, 0, factory);
+  GetUnitTestImpl()->AddTestInfo(0, 0, test_info);
   return test_info;
 }
-
-#if GTEST_HAS_PARAM_TEST
-void ReportInvalidTestCaseType(const char* test_case_name,
-                               const char* file, int line) {
-  Message errors;
-  errors
-      << "Attempted redefinition of test case " << test_case_name << ".\n"
-      << "All tests in the same test case must use the same test fixture\n"
-      << "class.  However, in test case " << test_case_name << ", you tried\n"
-      << "to define a test using a fixture class different from the one\n"
-      << "used earlier. This can happen if the two fixture classes are\n"
-      << "from different namespaces and have the same name. You should\n"
-      << "probably rename one of the classes to put the tests into different\n"
-      << "test cases.";
-
-  fprintf(stderr, "%s %s", FormatFileLocation(file, line).c_str(),
-          errors.GetString().c_str());
-}
-#endif  // GTEST_HAS_PARAM_TEST
 
 }  // namespace internal
 

@@ -506,13 +506,6 @@ class ParameterizedTestCaseInfo : public ParameterizedTestCaseInfoBase {
           Message test_name_stream;
           test_name_stream << test_info->test_base_name << "/" << i;
           MakeAndRegisterTestInfo(
-              test_case_name.c_str(),
-              test_name_stream.GetString().c_str(),
-              NULL,  // No type parameter.
-              PrintToString(*param_it).c_str(),
-              GetTestCaseTypeId(),
-              TestCase::SetUpTestCase,
-              TestCase::TearDownTestCase,
               test_info->test_meta_factory->CreateTestFactory(*param_it));
         }  // for param_it
       }  // for gen_it
