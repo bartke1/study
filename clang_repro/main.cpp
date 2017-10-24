@@ -1,12 +1,6 @@
-// Copyright 2017 Nokia. All rights reserved.
-
-#define GTEST_IMPLEMENTATION_ 1
-
 #include <cstdio>
 #include <cstring>
 #include <stdint.h>
-#include <gtest/gtest.h>
-#include "src/gtest-internal-inl.h"
 
 struct C
 {
