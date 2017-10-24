@@ -357,13 +357,6 @@ AssertHelper::~AssertHelper() {
 
 // Message assignment, for assertion streaming support.
 void AssertHelper::operator=(const Message& message) const {
-  UnitTest::GetInstance()->
-    AddTestPartResult(data_->type, data_->file, data_->line,
-                      AppendUserMessage(data_->message, message),
-                      UnitTest::GetInstance()->impl()
-                      ->CurrentOsStackTraceExceptTop(1)
-                      // Skips the stack frame for this function itself.
-                      );  // NOLINT
 }
 
 // Mutex for linked pointers.
@@ -617,30 +610,7 @@ DefaultGlobalTestPartResultReporter::DefaultGlobalTestPartResultReporter(
 
 void DefaultGlobalTestPartResultReporter::ReportTestPartResult(
     const TestPartResult& result) {
-  unit_test_->current_test_result()->AddTestPartResult(result);
   unit_test_->listeners()->repeater()->OnTestPartResult(result);
-}
-
-DefaultPerThreadTestPartResultReporter::DefaultPerThreadTestPartResultReporter(
-    UnitTestImpl* unit_test) : unit_test_(unit_test) {}
-
-void DefaultPerThreadTestPartResultReporter::ReportTestPartResult(
-    const TestPartResult& result) {
-  unit_test_->GetGlobalTestPartResultReporter()->ReportTestPartResult(result);
-}
-
-// Returns the global test part result reporter.
-TestPartResultReporterInterface*
-UnitTestImpl::GetGlobalTestPartResultReporter() {
-  internal::MutexLock lock(&global_test_part_result_reporter_mutex_);
-  return global_test_part_result_repoter_;
-}
-
-// Sets the global test part result reporter.
-void UnitTestImpl::SetGlobalTestPartResultReporter(
-    TestPartResultReporterInterface* reporter) {
-  internal::MutexLock lock(&global_test_part_result_reporter_mutex_);
-  global_test_part_result_repoter_ = reporter;
 }
 
 // Gets the number of successful test cases.
@@ -1662,30 +1632,6 @@ void TestResult::ClearTestPartResults() {
   test_part_results_.clear();
 }
 
-// Adds a test part result to the list.
-void TestResult::AddTestPartResult(const TestPartResult& test_part_result) {
-  test_part_results_.push_back(test_part_result);
-}
-
-// Adds a test property to the list. If a property with the same key as the
-// supplied property is already represented, the value of this test_property
-// replaces the old value for that key.
-void TestResult::RecordProperty(const std::string& xml_element,
-                                const TestProperty& test_property) {
-  if (!ValidateTestProperty(xml_element, test_property)) {
-    return;
-  }
-  internal::MutexLock lock(&test_properites_mutex_);
-  const std::vector<TestProperty>::iterator property_with_matching_key =
-      std::find_if(test_properties_.begin(), test_properties_.end(),
-                   internal::TestPropertyKeyIs(test_property.key()));
-  if (property_with_matching_key == test_properties_.end()) {
-    test_properties_.push_back(test_property);
-    return;
-  }
-  property_with_matching_key->SetValue(test_property.value());
-}
-
 // The list of reserved attributes used in the <testsuites> element of XML
 // output.
 static const char* const kReservedTestSuitesAttributes[] = {
@@ -1758,9 +1704,6 @@ bool ValidateTestPropertyName(const std::string& property_name,
                               const std::vector<std::string>& reserved_names) {
   if (std::find(reserved_names.begin(), reserved_names.end(), property_name) !=
           reserved_names.end()) {
-    ADD_FAILURE() << "Reserved key used in RecordProperty(): " << property_name
-                  << " (" << FormatWordList(reserved_names)
-                  << " are reserved by " << GTEST_NAME_ << ")";
     return false;
   }
   return true;
@@ -1848,30 +1791,10 @@ void Test::SetUp() {
 void Test::TearDown() {
 }
 
-// Allows user supplied key value pairs to be recorded for later output.
-void Test::RecordProperty(const std::string& key, const std::string& value) {
-  UnitTest::GetInstance()->RecordProperty(key, value);
-}
-
-// Allows user supplied key value pairs to be recorded for later output.
-void Test::RecordProperty(const std::string& key, int value) {
-  Message value_message;
-  value_message << value;
-  RecordProperty(key, value_message.GetString().c_str());
-}
-
 namespace internal {
 
 void ReportFailureInUnknownLocation(TestPartResult::Type result_type,
                                     const std::string& message) {
-  // This function is a friend of UnitTest and as such has access to
-  // AddTestPartResult.
-  UnitTest::GetInstance()->AddTestPartResult(
-      result_type,
-      NULL,  // No info about the source file where the exception occurred.
-      -1,    // We have no info on which line caused the exception.
-      message,
-      "");   // No stack trace, either.
 }
 
 }  // namespace internal
@@ -2081,11 +2004,9 @@ void Test::Run() {
   if (!HasSameFixtureClass()) return;
 
   internal::UnitTestImpl* const impl = internal::GetUnitTestImpl();
-  impl->os_stack_trace_getter()->UponLeavingGTest();
   internal::HandleExceptionsInMethodIfSupported(this, &Test::SetUp, "SetUp()");
   // We will run the test only if SetUp() was successful.
   if (!HasFatalFailure()) {
-    impl->os_stack_trace_getter()->UponLeavingGTest();
     internal::HandleExceptionsInMethodIfSupported(
         this, &Test::TestBody, "the test body");
   }
@@ -2093,7 +2014,6 @@ void Test::Run() {
   // However, we want to clean up as much as possible.  Hence we will
   // always call TearDown(), even if SetUp() or the test body has
   // failed.
-  impl->os_stack_trace_getter()->UponLeavingGTest();
   internal::HandleExceptionsInMethodIfSupported(
       this, &Test::TearDown, "TearDown()");
 }
@@ -2250,8 +2170,6 @@ void TestInfo::Run() {
 
   const TimeInMillis start = internal::GetTimeInMillis();
 
-  impl->os_stack_trace_getter()->UponLeavingGTest();
-
   // Creates the test object.
   Test* const test = internal::HandleExceptionsInMethodIfSupported(
       factory_, &internal::TestFactoryBase::CreateTest,
@@ -2266,7 +2184,6 @@ void TestInfo::Run() {
   }
 
   // Deletes the test object.
-  impl->os_stack_trace_getter()->UponLeavingGTest();
   internal::HandleExceptionsInMethodIfSupported(
       test, &Test::DeleteSelf_, "the test fixture's destructor");
 
@@ -2374,7 +2291,6 @@ void TestCase::Run() {
   TestEventListener* repeater = UnitTest::GetInstance()->listeners().repeater();
 
   repeater->OnTestCaseStart(*this);
-  impl->os_stack_trace_getter()->UponLeavingGTest();
   internal::HandleExceptionsInMethodIfSupported(
       this, &TestCase::RunSetUpTestCase, "SetUpTestCase()");
 
@@ -2384,7 +2300,6 @@ void TestCase::Run() {
   }
   elapsed_time_ = internal::GetTimeInMillis() - start;
 
-  impl->os_stack_trace_getter()->UponLeavingGTest();
   internal::HandleExceptionsInMethodIfSupported(
       this, &TestCase::RunTearDownTestCase, "TearDownTestCase()");
 
@@ -3420,16 +3335,6 @@ void StreamingListener::SocketWriter::MakeConnection() {
 
 // Class ScopedTrace
 
-// Pushes the given source file location and message onto a per-thread
-// trace stack maintained by Google Test.
-ScopedTrace::ScopedTrace(const char* file, int line, const Message& message)
-    GTEST_LOCK_EXCLUDED_(&UnitTest::mutex_) {
-  TraceInfo trace;
-  trace.file = file;
-  trace.line = line;
-  trace.message = message.GetString();
-}
-
 // class OsStackTraceGetter
 
 // Returns the current OS stack trace as an std::string.  Parameters:
@@ -3439,15 +3344,6 @@ ScopedTrace::ScopedTrace(const char* file, int line, const Message& message)
 //   skip_count - the number of top frames to be skipped; doesn't count
 //                against max_depth.
 //
-string OsStackTraceGetter::CurrentStackTrace(int /* max_depth */,
-                                             int /* skip_count */)
-    GTEST_LOCK_EXCLUDED_(mutex_) {
-  return "";
-}
-
-void OsStackTraceGetter::UponLeavingGTest()
-    GTEST_LOCK_EXCLUDED_(mutex_) {
-}
 
 const char* const
 OsStackTraceGetter::kElidedFramesMarker =
@@ -3700,70 +3596,6 @@ Environment* UnitTest::AddEnvironment(Environment* env) {
   return env;
 }
 
-// Adds a TestPartResult to the current TestResult object.  All Google Test
-// assertion macros (e.g. ASSERT_TRUE, EXPECT_EQ, etc) eventually call
-// this to report their results.  The user code should use the
-// assertion macros instead of calling this directly.
-void UnitTest::AddTestPartResult(
-    TestPartResult::Type result_type,
-    const char* file_name,
-    int line_number,
-    const std::string& message,
-    const std::string& os_stack_trace) GTEST_LOCK_EXCLUDED_(mutex_) {
-  Message msg;
-  msg << message;
-
-  internal::MutexLock lock(&mutex_);
-
-  if (os_stack_trace.c_str() != NULL && !os_stack_trace.empty()) {
-    msg << internal::kStackTraceMarker << os_stack_trace;
-  }
-
-  const TestPartResult result =
-    TestPartResult(result_type, file_name, line_number,
-                   msg.GetString().c_str());
-
-  if (result_type != TestPartResult::kSuccess) {
-    // gtest_break_on_failure takes precedence over
-    // gtest_throw_on_failure.  This allows a user to set the latter
-    // in the code (perhaps in order to use Google Test assertions
-    // with another testing framework) and specify the former on the
-    // command line for debugging.
-    if (GTEST_FLAG(break_on_failure)) {
-#if GTEST_OS_WINDOWS
-      // Using DebugBreak on Windows allows gtest to still break into a debugger
-      // when a failure happens and both the --gtest_break_on_failure and
-      // the --gtest_catch_exceptions flags are specified.
-      DebugBreak();
-#else
-      // Dereference NULL through a volatile pointer to prevent the compiler
-      // from removing. We use this rather than abort() or __builtin_trap() for
-      // portability: Symbian doesn't implement abort() well, and some debuggers
-      // don't correctly trap abort().
-      *static_cast<volatile int*>(NULL) = 1;
-#endif  // GTEST_OS_WINDOWS
-    } else if (GTEST_FLAG(throw_on_failure)) {
-#if GTEST_HAS_EXCEPTIONS
-      throw internal::GoogleTestFailureException(result);
-#else
-      // We cannot call abort() as it generates a pop-up in debug mode
-      // that cannot be suppressed in VC 7.1 or below.
-      exit(1);
-#endif
-    }
-  }
-}
-
-// Adds a TestProperty to the current TestResult object when invoked from
-// inside a test, to current TestCase's ad_hoc_test_result_ when invoked
-// from SetUpTestCase or TearDownTestCase, or to the global property set
-// when invoked elsewhere.  If the result already contains a property with
-// the same key, the value will be updated.
-void UnitTest::RecordProperty(const std::string& key,
-                              const std::string& value) {
-  impl_->RecordProperty(TestProperty(key, value));
-}
-
 // Runs all tests in this UnitTest object and prints the result.
 // Returns 0 if successful, or 1 otherwise.
 //
@@ -3779,34 +3611,8 @@ const char* UnitTest::original_working_dir() const {
   return impl_->original_working_dir_.c_str();
 }
 
-// Returns the TestCase object for the test that's currently running,
-// or NULL if no test is running.
-const TestCase* UnitTest::current_test_case() const
-    GTEST_LOCK_EXCLUDED_(mutex_) {
-  internal::MutexLock lock(&mutex_);
-  return impl_->current_test_case();
-}
-
-// Returns the TestInfo object for the test that's currently running,
-// or NULL if no test is running.
-const TestInfo* UnitTest::current_test_info() const
-    GTEST_LOCK_EXCLUDED_(mutex_) {
-  internal::MutexLock lock(&mutex_);
-  return impl_->current_test_info();
-}
-
 // Returns the random seed used at the start of the current test run.
 int UnitTest::random_seed() const { return impl_->random_seed(); }
-
-#if GTEST_HAS_PARAM_TEST
-// Returns ParameterizedTestCaseRegistry object used to keep track of
-// value-parameterized tests and instantiate and register them.
-internal::ParameterizedTestCaseRegistry&
-    UnitTest::parameterized_test_registry()
-        GTEST_LOCK_EXCLUDED_(mutex_) {
-  return impl_->parameterized_test_registry();
-}
-#endif  // GTEST_HAS_PARAM_TEST
 
 // Creates an empty UnitTest.
 UnitTest::UnitTest() {
@@ -3863,28 +3669,6 @@ UnitTestImpl::~UnitTestImpl() {
   ForEach(environments_, internal::Delete<Environment>);
 
   delete os_stack_trace_getter_;
-}
-
-// Adds a TestProperty to the current TestResult object when invoked in a
-// context of a test, to current test case's ad_hoc_test_result when invoke
-// from SetUpTestCase/TearDownTestCase, or to the global property set
-// otherwise.  If the result already contains a property with the same key,
-// the value will be updated.
-void UnitTestImpl::RecordProperty(const TestProperty& test_property) {
-  std::string xml_element;
-  TestResult* test_result;  // TestResult appropriate for property recording.
-
-  if (current_test_info_ != NULL) {
-    xml_element = "testcase";
-    test_result = &(current_test_info_->result_);
-  } else if (current_test_case_ != NULL) {
-    xml_element = "testsuite";
-    test_result = &(current_test_case_->ad_hoc_test_result_);
-  } else {
-    xml_element = "testsuites";
-    test_result = &ad_hoc_test_result_;
-  }
-  test_result->RecordProperty(xml_element, test_property);
 }
 
 #if GTEST_HAS_DEATH_TEST

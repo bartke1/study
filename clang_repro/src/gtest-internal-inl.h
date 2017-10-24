@@ -419,19 +419,6 @@ class OsStackTraceGetterInterface {
   OsStackTraceGetterInterface() {}
   virtual ~OsStackTraceGetterInterface() {}
 
-  // Returns the current OS stack trace as an std::string.  Parameters:
-  //
-  //   max_depth  - the maximum number of stack frames to be included
-  //                in the trace.
-  //   skip_count - the number of top frames to be skipped; doesn't count
-  //                against max_depth.
-  virtual string CurrentStackTrace(int max_depth, int skip_count) = 0;
-
-  // UponLeavingGTest() should be called immediately before Google Test calls
-  // user code. It saves some information about the current stack that
-  // CurrentStackTrace() will use to find and hide Google Test stack frames.
-  virtual void UponLeavingGTest() = 0;
-
  private:
   GTEST_DISALLOW_COPY_AND_ASSIGN_(OsStackTraceGetterInterface);
 };
@@ -441,17 +428,11 @@ class OsStackTraceGetter : public OsStackTraceGetterInterface {
  public:
   OsStackTraceGetter() : caller_frame_(NULL) {}
 
-  virtual string CurrentStackTrace(int max_depth, int skip_count)
-      GTEST_LOCK_EXCLUDED_(mutex_);
-
-  virtual void UponLeavingGTest() GTEST_LOCK_EXCLUDED_(mutex_);
-
   // This string is inserted in place of stack frames that are part of
   // Google Test's implementation.
   static const char* const kElidedFramesMarker;
 
  private:
-  Mutex mutex_;  // protects all internal state
 
   // We save the stack frame below the frame that calls user code.
   // We do this because the address of the frame immediately below
@@ -485,22 +466,6 @@ class DefaultGlobalTestPartResultReporter
   GTEST_DISALLOW_COPY_AND_ASSIGN_(DefaultGlobalTestPartResultReporter);
 };
 
-// This is the default per thread test part result reporter used in
-// UnitTestImpl. This class should only be used by UnitTestImpl.
-class DefaultPerThreadTestPartResultReporter
-    : public TestPartResultReporterInterface {
- public:
-  explicit DefaultPerThreadTestPartResultReporter(UnitTestImpl* unit_test);
-  // Implements the TestPartResultReporterInterface. The implementation just
-  // delegates to the current global test part result reporter of *unit_test_.
-  virtual void ReportTestPartResult(const TestPartResult& result);
-
- private:
-  UnitTestImpl* const unit_test_;
-
-  GTEST_DISALLOW_COPY_AND_ASSIGN_(DefaultPerThreadTestPartResultReporter);
-};
-
 // The private implementation of the UnitTest class.  We don't protect
 // the methods under a mutex, as this class is not accessible by a
 // user and the UnitTest class that delegates work to this class does
@@ -516,9 +481,6 @@ class GTEST_API_ UnitTestImpl {
   // By default, each per-thread test result repoter just passes a new
   // TestPartResult to the global test result reporter, which registers the
   // test part result for the currently running test.
-
-  // Returns the global test part result reporter.
-  TestPartResultReporterInterface* GetGlobalTestPartResultReporter();
 
   // Sets the global test part result reporter.
   void SetGlobalTestPartResultReporter(
@@ -710,12 +672,6 @@ class GTEST_API_ UnitTestImpl {
     ad_hoc_test_result_.Clear();
   }
 
-  // Adds a TestProperty to the current TestResult object when invoked in a
-  // context of a test or a test case, or to the global property set. If the
-  // result already contains a property with the same key, the value will be
-  // updated.
-  void RecordProperty(const TestProperty& test_property);
-
   enum ReactionToSharding {
     HONOR_SHARDING_PROTOCOL,
     IGNORE_SHARDING_PROTOCOL
@@ -815,9 +771,6 @@ class GTEST_API_ UnitTestImpl {
 
   // Points to (but doesn't own) the global test part result reporter.
   TestPartResultReporterInterface* global_test_part_result_repoter_;
-
-  // Protects read and write access to global_test_part_result_reporter_.
-  internal::Mutex global_test_part_result_reporter_mutex_;
 
   // The vector of environments that need to be set-up/torn-down
   // before/after the tests are run.
@@ -1024,11 +977,6 @@ bool ParseNaturalNumber(const ::std::string& str, Integer* number) {
 // constructs. Do not use it in user tests, either directly or indirectly.
 class TestResultAccessor {
  public:
-  static void RecordProperty(TestResult* test_result,
-                             const std::string& xml_element,
-                             const TestProperty& property) {
-    test_result->RecordProperty(xml_element, property);
-  }
 
   static void ClearTestPartResults(TestResult* test_result) {
     test_result->ClearTestPartResults();
