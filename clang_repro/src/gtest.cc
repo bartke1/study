@@ -3035,34 +3035,9 @@ UnitTest::~UnitTest() {
 namespace internal {
 
 UnitTestImpl::UnitTestImpl(UnitTest* parent)
-    : parent_(parent),
-#ifdef _MSC_VER
-# pragma warning(push)                    // Saves the current warning state.
-# pragma warning(disable:4355)            // Temporarily disables warning 4355
-                                         // (using this in initializer).
-      default_global_test_part_result_reporter_(this),
-# pragma warning(pop)                     // Restores the warning state again.
-#else
-      default_global_test_part_result_reporter_(this),
-#endif  // _MSC_VER
-      global_test_part_result_repoter_(
-          &default_global_test_part_result_reporter_),
-#if GTEST_HAS_PARAM_TEST
-      parameterized_test_registry_(),
-      parameterized_tests_registered_(false),
-#endif  // GTEST_HAS_PARAM_TEST
-      last_death_test_case_(-1),
-      current_test_case_(NULL),
-      current_test_info_(NULL),
-      ad_hoc_test_result_(),
-      os_stack_trace_getter_(NULL),
-      post_flag_parse_init_performed_(false),
-      random_seed_(0),  // Will be overridden by the flag before first use.
-      random_(0),  // Will be reseeded before first use.
-      start_timestamp_(0),
-      elapsed_time_(0),
-      // Will be overridden by the flag before first use.
-      catch_exceptions_(false) {
+    : current_test_case_(NULL),
+      current_test_info_(NULL)
+{
 }
 
 UnitTestImpl::~UnitTestImpl() {

@@ -533,38 +533,9 @@ class GTEST_API_ UnitTestImpl {
   TestInfo* current_test_info() { return current_test_info_; }
   const TestInfo* current_test_info() const { return current_test_info_; }
 
-  // Used by UnitTest::Run() to capture the state of
-  // GTEST_FLAG(catch_exceptions) at the moment it starts.
-  void set_catch_exceptions(bool value) { catch_exceptions_ = value; }
-
-  // The UnitTest object that owns this implementation object.
-  UnitTest* const parent_;
-
-  // The working directory when the first TEST() or TEST_F() was
-  // executed.
-  internal::FilePath original_working_dir_;
-
-  // The default test part result reporters.
-  DefaultGlobalTestPartResultReporter default_global_test_part_result_reporter_;
-
-  // Points to (but doesn't own) the global test part result reporter.
-  TestPartResultReporterInterface* global_test_part_result_repoter_;
-
   // The vector of TestCases in their original order.  It owns the
   // elements in the vector.
   std::vector<TestCase*> test_cases_;
-
-#if GTEST_HAS_PARAM_TEST
-  // ParameterizedTestRegistry object used to register value-parameterized
-  // tests.
-  internal::ParameterizedTestCaseRegistry parameterized_test_registry_;
-
-  // Indicates whether RegisterParameterizedTests() has been called already.
-  bool parameterized_tests_registered_;
-#endif  // GTEST_HAS_PARAM_TEST
-
-  // Index of the last death test case registered.  Initially -1.
-  int last_death_test_case_;
 
   // This points to the TestCase for the currently running test.  It
   // changes as Google Test goes through one test case after another.
@@ -577,48 +548,6 @@ class GTEST_API_ UnitTestImpl {
   // no test is running, this is set to NULL and Google Test stores
   // assertion results in ad_hoc_test_result_.  Initially NULL.
   TestInfo* current_test_info_;
-
-  // Normally, a user only writes assertions inside a TEST or TEST_F,
-  // or inside a function called by a TEST or TEST_F.  Since Google
-  // Test keeps track of which test is current running, it can
-  // associate such an assertion with the test it belongs to.
-  //
-  // If an assertion is encountered when no TEST or TEST_F is running,
-  // Google Test attributes the assertion result to an imaginary "ad hoc"
-  // test, and records the result in ad_hoc_test_result_.
-  TestResult ad_hoc_test_result_;
-
-  // The list of event listeners that can be used to track events inside
-  // Google Test.
-  TestEventListeners listeners_;
-
-  // The OS stack trace getter.  Will be deleted when the UnitTest
-  // object is destructed.  By default, an OsStackTraceGetter is used,
-  // but the user can set this field to use a custom getter if that is
-  // desired.
-  OsStackTraceGetterInterface* os_stack_trace_getter_;
-
-  // True iff PostFlagParsingInit() has been called.
-  bool post_flag_parse_init_performed_;
-
-  // The random number seed used at the beginning of the test run.
-  int random_seed_;
-
-  // Our random number generator.
-  internal::Random random_;
-
-  // The time of the test program start, in ms from the start of the
-  // UNIX epoch.
-  TimeInMillis start_timestamp_;
-
-  // How long the test took to run, in milliseconds.
-  TimeInMillis elapsed_time_;
-
-  // The value of GTEST_FLAG(catch_exceptions) at the moment RunAllTests()
-  // starts.
-  bool catch_exceptions_;
-
-  GTEST_DISALLOW_COPY_AND_ASSIGN_(UnitTestImpl);
 };  // class UnitTestImpl
 
 // Convenience function for accessing the global UnitTest
