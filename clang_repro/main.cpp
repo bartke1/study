@@ -53,22 +53,27 @@ public:
     AA aa[2];
 };
 
-struct T : public testing::Test
+struct Test
 {
-    A x;
-    virtual void TestBody(){};
+    void Run()
+    {}
 };
 
-using namespace ::testing;
-using namespace ::testing::internal;
+struct T : public Test
+{
+    A x;
+};
 
 template <class TestClass>
 struct F
 {
-    virtual Test* CreateTest() { return new TestClass; }
+    Test* CreateTest()
+    {
+        return new TestClass;
+    }
 };
 
-int main(int argc, char* argv[])
+int main()
 {
     F<T>().CreateTest()->Run();
 }
