@@ -48,27 +48,18 @@ public:
     AA aa[2];
 };
 
-struct ATest : public testing::Test
+struct T : public testing::Test
 {
     A x;
+    virtual void TestBody(){};
+    static ::testing::TestInfo* const test_info_ __attribute__((unused));
 };
 
-class ATest_TheTest_Test : public ATest
-{
-public:
-    ATest_TheTest_Test() {}
-private:
-    virtual void TestBody();
-    static ::testing::TestInfo* const test_info_ __attribute__((unused));
-    ATest_TheTest_Test(ATest_TheTest_Test const&);
-    void operator=(ATest_TheTest_Test const&);
-};
-::testing::TestInfo* const ATest_TheTest_Test::test_info_ =
+::testing::TestInfo* const T::test_info_ =
     ::testing::internal::MakeAndRegisterTestInfo(
-        "ATest", "TheTest", __null, __null, (::testing::internal::GetTypeId<ATest>()),
-        ATest::SetUpTestCase, ATest::TearDownTestCase,
-        new ::testing::internal::TestFactoryImpl<ATest_TheTest_Test>);
-void ATest_TheTest_Test::TestBody() {}
+        "ATest", "TheTest", __null, __null, (::testing::internal::GetTypeId<T>()),
+        T::SetUpTestCase, T::TearDownTestCase,
+        new ::testing::internal::TestFactoryImpl<T>);
 
 int main(int argc, char* argv[])
 {
