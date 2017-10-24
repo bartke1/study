@@ -59,11 +59,14 @@ struct T : public testing::Test
     virtual void TestBody(){};
 };
 
+using namespace ::testing;
+using namespace ::testing::internal;
+
 int main(int argc, char* argv[])
 {
-    ::testing::UnitTest::GetInstance()->impl()->AddTestInfo(
-            new ::testing::TestInfo(
-                    new ::testing::internal::TestFactoryImpl<T>));
+    UnitTest::GetInstance()->impl()->AddTestInfo(
+            new TestInfo(
+                    new TestFactoryImpl<T>));
 
-    return testing::UnitTest::GetInstance()->Run();
+    return UnitTest::GetInstance()->Run();
 }

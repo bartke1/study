@@ -475,45 +475,6 @@ class GTEST_API_ UnitTestImpl {
   explicit UnitTestImpl(UnitTest* parent);
   virtual ~UnitTestImpl();
 
-  const TestCase* GetTestCase(int i) const {
-    const int index = GetElementOr(test_case_indices_, i, -1);
-    return index < 0 ? NULL : test_cases_[i];
-  }
-
-  // Provides access to the event listener list.
-  TestEventListeners* listeners() { return &listeners_; }
-
-  // Returns the TestResult for the test that's currently running, or
-  // the TestResult for the ad hoc test if no test is running.
-  TestResult* current_test_result();
-
-  // Returns the TestResult for the ad hoc test.
-  const TestResult* ad_hoc_test_result() const { return &ad_hoc_test_result_; }
-
-  // Sets the OS stack trace getter.
-  //
-  // Does nothing if the input and the current OS stack trace getter
-  // are the same; otherwise, deletes the old getter and makes the
-  // input the current getter.
-  void set_os_stack_trace_getter(OsStackTraceGetterInterface* getter);
-
-  // Returns the current OS stack trace getter if it is not NULL;
-  // otherwise, creates an OsStackTraceGetter, makes it the current
-  // getter, and returns it.
-  OsStackTraceGetterInterface* os_stack_trace_getter();
-
-  // Returns the current OS stack trace as an std::string.
-  //
-  // The maximum number of stack frames to be included is specified by
-  // the gtest_stack_trace_depth flag.  The skip_count parameter
-  // specifies the number of top frames to be skipped, which doesn't
-  // count against the number of frames to be included.
-  //
-  // For example, if Foo() calls Bar(), which in turn calls
-  // CurrentOsStackTraceExceptTop(1), Foo() will be included in the
-  // trace but Bar() and CurrentOsStackTraceExceptTop() won't.
-  std::string CurrentOsStackTraceExceptTop(int skip_count) GTEST_NO_INLINE_;
-
   // Finds and returns a TestCase with the given name.  If one doesn't
   // exist, creates one and returns it.
   //
@@ -537,14 +498,6 @@ class GTEST_API_ UnitTestImpl {
     GetTestCase()->AddTestInfo(test_info);
   }
 
-#if GTEST_HAS_PARAM_TEST
-  // Returns ParameterizedTestCaseRegistry object used to keep track of
-  // value-parameterized tests and instantiate and register them.
-  internal::ParameterizedTestCaseRegistry& parameterized_test_registry() {
-    return parameterized_test_registry_;
-  }
-#endif  // GTEST_HAS_PARAM_TEST
-
   // Sets the TestCase object for the test that's currently running.
   void set_current_test_case(TestCase* a_current_test_case) {
     current_test_case_ = a_current_test_case;
@@ -557,29 +510,11 @@ class GTEST_API_ UnitTestImpl {
     current_test_info_ = a_current_test_info;
   }
 
-  // Registers all parameterized tests defined using TEST_P and
-  // INSTANTIATE_TEST_CASE_P, creating regular tests for each test/parameter
-  // combination. This method can be called more then once; it has guards
-  // protecting from registering the tests more then once.  If
-  // value-parameterized tests are disabled, RegisterParameterizedTests is
-  // present but does nothing.
-  void RegisterParameterizedTests();
-
   // Runs all tests in this UnitTest object, prints the result, and
   // returns true if all tests are successful.  If any exception is
   // thrown during a test, this test is considered to be failed, but
   // the rest of the tests will still be run.
   bool RunAllTests();
-
-  // Clears the results of all tests, except the ad hoc tests.
-  void ClearNonAdHocTestResult() {
-    ForEach(test_cases_, TestCase::ClearTestCaseResult);
-  }
-
-  // Clears the results of ad-hoc test assertions.
-  void ClearAdHocTestResult() {
-    ad_hoc_test_result_.Clear();
-  }
 
   enum ReactionToSharding {
     HONOR_SHARDING_PROTOCOL,
@@ -594,53 +529,9 @@ class GTEST_API_ UnitTestImpl {
   // Returns the number of tests that should run.
   int FilterTests(ReactionToSharding shard_tests);
 
-  // Prints the names of the tests matching the user-specified filter flag.
-  void ListTestsMatchingFilter();
-
   const TestCase* current_test_case() const { return current_test_case_; }
   TestInfo* current_test_info() { return current_test_info_; }
   const TestInfo* current_test_info() const { return current_test_info_; }
-
-  // Returns the vector of environments that need to be set-up/torn-down
-  // before/after the tests are run.
-  std::vector<Environment*>& environments() { return environments_; }
-
-  // Initializes the event listener performing XML output as specified by
-  // UnitTestOptions. Must not be called before InitGoogleTest.
-  void ConfigureXmlOutput();
-
-#if GTEST_CAN_STREAM_RESULTS_
-  // Initializes the event listener for streaming test results to a socket.
-  // Must not be called before InitGoogleTest.
-  void ConfigureStreamingOutput();
-#endif
-
-  // Performs initialization dependent upon flag values obtained in
-  // ParseGoogleTestFlagsOnly.  Is called from InitGoogleTest after the call to
-  // ParseGoogleTestFlagsOnly.  In case a user neglects to call InitGoogleTest
-  // this function is also called from RunAllTests.  Since this function can be
-  // called more than once, it has to be idempotent.
-  void PostFlagParsingInit();
-
-  // Gets the random seed used at the start of the current test iteration.
-  int random_seed() const { return random_seed_; }
-
-  // Gets the random number generator.
-  internal::Random* random() { return &random_; }
-
-  // Shuffles all test cases, and the tests within each test case,
-  // making sure that death tests are still run first.
-  void ShuffleTests();
-
-  // Restores the test cases and tests to their order before the first shuffle.
-  void UnshuffleTests();
-
-  // Returns the value of GTEST_FLAG(catch_exceptions) at the moment
-  // UnitTest::Run() starts.
-  bool catch_exceptions() const { return catch_exceptions_; }
-
- public:
-  friend class ::testing::UnitTest;
 
   // Used by UnitTest::Run() to capture the state of
   // GTEST_FLAG(catch_exceptions) at the moment it starts.
@@ -659,19 +550,9 @@ class GTEST_API_ UnitTestImpl {
   // Points to (but doesn't own) the global test part result reporter.
   TestPartResultReporterInterface* global_test_part_result_repoter_;
 
-  // The vector of environments that need to be set-up/torn-down
-  // before/after the tests are run.
-  std::vector<Environment*> environments_;
-
   // The vector of TestCases in their original order.  It owns the
   // elements in the vector.
   std::vector<TestCase*> test_cases_;
-
-  // Provides a level of indirection for the test case list to allow
-  // easy shuffling and restoring the test case order.  The i-th
-  // element of this vector is the index of the i-th test case in the
-  // shuffled order.
-  std::vector<int> test_case_indices_;
 
 #if GTEST_HAS_PARAM_TEST
   // ParameterizedTestRegistry object used to register value-parameterized

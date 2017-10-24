@@ -583,22 +583,6 @@ DefaultGlobalTestPartResultReporter::DefaultGlobalTestPartResultReporter(
 
 void DefaultGlobalTestPartResultReporter::ReportTestPartResult(
     const TestPartResult& result) {
-  unit_test_->listeners()->repeater()->OnTestPartResult(result);
-}
-
-// Returns the current OS stack trace as an std::string.
-//
-// The maximum number of stack frames to be included is specified by
-// the gtest_stack_trace_depth flag.  The skip_count parameter
-// specifies the number of top frames to be skipped, which doesn't
-// count against the number of frames to be included.
-//
-// For example, if Foo() calls Bar(), which in turn calls
-// CurrentOsStackTraceExceptTop(1), Foo() will be included in the
-// trace but Bar() and CurrentOsStackTraceExceptTop() won't.
-std::string UnitTestImpl::CurrentOsStackTraceExceptTop(int skip_count) {
-  (void)skip_count;
-  return "";
 }
 
 // Returns the current time in milliseconds.
@@ -1857,62 +1841,6 @@ Result HandleSehExceptionsInMethodIfSupported(
 #endif  // GTEST_HAS_SEH
 }
 
-// Runs the given method and catches and reports C++ and/or SEH-style
-// exceptions, if they are supported; returns the 0-value for type
-// Result in case of an SEH exception.
-template <class T, typename Result>
-Result HandleExceptionsInMethodIfSupported(
-    T* object, Result (T::*method)(), const char* location) {
-  // NOTE: The user code can affect the way in which Google Test handles
-  // exceptions by setting GTEST_FLAG(catch_exceptions), but only before
-  // RUN_ALL_TESTS() starts. It is technically possible to check the flag
-  // after the exception is caught and either report or re-throw the
-  // exception based on the flag's value:
-  //
-  // try {
-  //   // Perform the test method.
-  // } catch (...) {
-  //   if (GTEST_FLAG(catch_exceptions))
-  //     // Report the exception as failure.
-  //   else
-  //     throw;  // Re-throws the original exception.
-  // }
-  //
-  // However, the purpose of this flag is to allow the program to drop into
-  // the debugger when the exception is thrown. On most platforms, once the
-  // control enters the catch block, the exception origin information is
-  // lost and the debugger will stop the program at the point of the
-  // re-throw in this function -- instead of at the point of the original
-  // throw statement in the code under test.  For this reason, we perform
-  // the check early, sacrificing the ability to affect Google Test's
-  // exception handling in the method where the exception is thrown.
-  if (internal::GetUnitTestImpl()->catch_exceptions()) {
-#if GTEST_HAS_EXCEPTIONS
-    try {
-      return HandleSehExceptionsInMethodIfSupported(object, method, location);
-    } catch (const internal::GoogleTestFailureException&) {  // NOLINT
-      // This exception type can only be thrown by a failed Google
-      // Test assertion with the intention of letting another testing
-      // framework catch it.  Therefore we just re-throw it.
-      throw;
-    } catch (const std::exception& e) {  // NOLINT
-      internal::ReportFailureInUnknownLocation(
-          TestPartResult::kFatalFailure,
-          FormatCxxExceptionMessage(e.what(), location));
-    } catch (...) {  // NOLINT
-      internal::ReportFailureInUnknownLocation(
-          TestPartResult::kFatalFailure,
-          FormatCxxExceptionMessage(NULL, location));
-    }
-    return static_cast<Result>(0);
-#else
-    return HandleSehExceptionsInMethodIfSupported(object, method, location);
-#endif  // GTEST_HAS_EXCEPTIONS
-  } else {
-    return (object->*method)();
-  }
-}
-
 }  // namespace internal
 
 // Runs the test and updates the test result.
@@ -1920,18 +1848,8 @@ void Test::Run() {
   if (!HasSameFixtureClass()) return;
 
   internal::UnitTestImpl* const impl = internal::GetUnitTestImpl();
-  internal::HandleExceptionsInMethodIfSupported(this, &Test::SetUp, "SetUp()");
-  // We will run the test only if SetUp() was successful.
-  if (!HasFatalFailure()) {
-    internal::HandleExceptionsInMethodIfSupported(
-        this, &Test::TestBody, "the test body");
-  }
 
-  // However, we want to clean up as much as possible.  Hence we will
-  // always call TearDown(), even if SetUp() or the test body has
-  // failed.
-  internal::HandleExceptionsInMethodIfSupported(
-      this, &Test::TearDown, "TearDown()");
+  TestBody();
 }
 
 // Returns true iff the current test has a fatal failure.
@@ -2019,22 +1937,6 @@ class TestNameIs {
 
 }  // namespace
 
-namespace internal {
-
-// This method expands all parameterized tests registered with macros TEST_P
-// and INSTANTIATE_TEST_CASE_P into regular tests and registers those.
-// This will be done just once during the program runtime.
-void UnitTestImpl::RegisterParameterizedTests() {
-#if GTEST_HAS_PARAM_TEST
-  if (!parameterized_tests_registered_) {
-    parameterized_test_registry_.RegisterTests();
-    parameterized_tests_registered_ = true;
-  }
-#endif
-}
-
-}  // namespace internal
-
 // Creates the test object, runs it, records its result, and then
 // deletes it.
 void TestInfo::Run() {
@@ -2047,9 +1949,7 @@ void TestInfo::Run() {
   const TimeInMillis start = internal::GetTimeInMillis();
 
   // Creates the test object.
-  Test* const test = internal::HandleExceptionsInMethodIfSupported(
-      factory_, &internal::TestFactoryBase::CreateTest,
-      "the test fixture's constructor");
+  Test* const test = factory_->CreateTest();
 
   // Runs the test only if the test object was created and its
   // constructor didn't generate a fatal failure.
@@ -2059,9 +1959,7 @@ void TestInfo::Run() {
     test->Run();
   }
 
-  // Deletes the test object.
-  internal::HandleExceptionsInMethodIfSupported(
-      test, &Test::DeleteSelf_, "the test fixture's destructor");
+  test->DeleteSelf_();
 
   result_.set_elapsed_time(internal::GetTimeInMillis() - start);
 
@@ -3102,12 +3000,6 @@ UnitTest* UnitTest::GetInstance() {
   static UnitTest instance;
   return &instance;
 #endif  // (_MSC_VER == 1310 && !defined(_DEBUG)) || defined(__BORLANDC__)
-}
-
-// Gets the i-th test case among all the test cases. i can range from 0 to
-// total_test_case_count() - 1. If i is not in that range, returns NULL.
-const TestCase* UnitTest::GetTestCase(int i) const {
-  return impl()->GetTestCase(i);
 }
 
 // Registers and returns a global test environment.  When a test
