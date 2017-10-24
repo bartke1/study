@@ -2,5 +2,7 @@
 
 CLANG=clang++-3.8
 
-${CLANG} -m32 -fstack-protector-all -std=c++98 -g -O0 Tests.cpp main.cpp -L/usr/local/lib32 -lgtest -lpthread && \
+# works with -fstack-protector
+
+${CLANG} -m32 -fstack-protector-all -std=c++98 -g -O0 -I. -Iinclude *.cpp src/gtest-all.cc -L/usr/local/lib32 -lpthread && \
 ./a.out
