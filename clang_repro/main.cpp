@@ -47,27 +47,12 @@ public:
     AA aa[2];
 };
 
-struct Test
-{
-    void Run()
-    {}
-};
-
-struct T : public Test
+struct T
 {
     A x;
 };
 
-template <class TestClass>
-struct F
-{
-    Test* CreateTest()
-    {
-        return new TestClass;
-    }
-};
-
 int main()
 {
-    F<T>().CreateTest()->Run();
+    new T;
 }
