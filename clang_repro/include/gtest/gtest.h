@@ -1274,15 +1274,6 @@ class GTEST_API_ UnitTest {
   // D'tor
   virtual ~UnitTest();
 
-  // Pushes a trace defined by SCOPED_TRACE() on to the per-thread
-  // Google Test trace stack.
-  void PushGTestTrace(const internal::TraceInfo& trace)
-      GTEST_LOCK_EXCLUDED_(mutex_);
-
-  // Pops a trace from the per-thread Google Test trace stack.
-  void PopGTestTrace()
-      GTEST_LOCK_EXCLUDED_(mutex_);
-
   // Protects mutable state in *impl_.  This is mutable as some const
   // methods need to lock it too.
   mutable internal::Mutex mutex_;

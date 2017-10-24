@@ -535,55 +535,6 @@ int UnitTestOptions::GTestShouldProcessSEH(DWORD exception_code) {
 
 }  // namespace internal
 
-// The c'tor sets this object as the test part result reporter used by
-// Google Test.  The 'result' parameter specifies where to report the
-// results. Intercepts only failures from the current thread.
-ScopedFakeTestPartResultReporter::ScopedFakeTestPartResultReporter(
-    TestPartResultArray* result)
-    : intercept_mode_(INTERCEPT_ONLY_CURRENT_THREAD),
-      result_(result) {
-  Init();
-}
-
-// The c'tor sets this object as the test part result reporter used by
-// Google Test.  The 'result' parameter specifies where to report the
-// results.
-ScopedFakeTestPartResultReporter::ScopedFakeTestPartResultReporter(
-    InterceptMode intercept_mode, TestPartResultArray* result)
-    : intercept_mode_(intercept_mode),
-      result_(result) {
-  Init();
-}
-
-void ScopedFakeTestPartResultReporter::Init() {
-  internal::UnitTestImpl* const impl = internal::GetUnitTestImpl();
-  if (intercept_mode_ == INTERCEPT_ALL_THREADS) {
-    old_reporter_ = impl->GetGlobalTestPartResultReporter();
-    impl->SetGlobalTestPartResultReporter(this);
-  } else {
-    old_reporter_ = impl->GetTestPartResultReporterForCurrentThread();
-    impl->SetTestPartResultReporterForCurrentThread(this);
-  }
-}
-
-// The d'tor restores the test part result reporter used by Google Test
-// before.
-ScopedFakeTestPartResultReporter::~ScopedFakeTestPartResultReporter() {
-  internal::UnitTestImpl* const impl = internal::GetUnitTestImpl();
-  if (intercept_mode_ == INTERCEPT_ALL_THREADS) {
-    impl->SetGlobalTestPartResultReporter(old_reporter_);
-  } else {
-    impl->SetTestPartResultReporterForCurrentThread(old_reporter_);
-  }
-}
-
-// Increments the test part result count and remembers the result.
-// This method is from the TestPartResultReporterInterface interface.
-void ScopedFakeTestPartResultReporter::ReportTestPartResult(
-    const TestPartResult& result) {
-  result_->Append(result);
-}
-
 namespace internal {
 
 // Returns the type ID of ::testing::Test.  We should always call this
@@ -690,18 +641,6 @@ void UnitTestImpl::SetGlobalTestPartResultReporter(
     TestPartResultReporterInterface* reporter) {
   internal::MutexLock lock(&global_test_part_result_reporter_mutex_);
   global_test_part_result_repoter_ = reporter;
-}
-
-// Returns the test part result reporter for the current thread.
-TestPartResultReporterInterface*
-UnitTestImpl::GetTestPartResultReporterForCurrentThread() {
-  return per_thread_test_part_result_reporter_.get();
-}
-
-// Sets the test part result reporter for the current thread.
-void UnitTestImpl::SetTestPartResultReporterForCurrentThread(
-    TestPartResultReporterInterface* reporter) {
-  per_thread_test_part_result_reporter_.set(reporter);
 }
 
 // Gets the number of successful test cases.
@@ -3489,16 +3428,7 @@ ScopedTrace::ScopedTrace(const char* file, int line, const Message& message)
   trace.file = file;
   trace.line = line;
   trace.message = message.GetString();
-
-  UnitTest::GetInstance()->PushGTestTrace(trace);
 }
-
-// Pops the info pushed by the c'tor.
-ScopedTrace::~ScopedTrace()
-    GTEST_LOCK_EXCLUDED_(&UnitTest::mutex_) {
-  UnitTest::GetInstance()->PopGTestTrace();
-}
-
 
 // class OsStackTraceGetter
 
@@ -3784,16 +3714,6 @@ void UnitTest::AddTestPartResult(
   msg << message;
 
   internal::MutexLock lock(&mutex_);
-  if (impl_->gtest_trace_stack().size() > 0) {
-    msg << "\n" << GTEST_NAME_ << " trace:";
-
-    for (int i = static_cast<int>(impl_->gtest_trace_stack().size());
-         i > 0; --i) {
-      const internal::TraceInfo& trace = impl_->gtest_trace_stack()[i - 1];
-      msg << "\n" << internal::FormatFileLocation(trace.file, trace.line)
-          << " " << trace.message;
-    }
-  }
 
   if (os_stack_trace.c_str() != NULL && !os_stack_trace.empty()) {
     msg << internal::kStackTraceMarker << os_stack_trace;
@@ -3802,8 +3722,6 @@ void UnitTest::AddTestPartResult(
   const TestPartResult result =
     TestPartResult(result_type, file_name, line_number,
                    msg.GetString().c_str());
-  impl_->GetTestPartResultReporterForCurrentThread()->
-      ReportTestPartResult(result);
 
   if (result_type != TestPartResult::kSuccess) {
     // gtest_break_on_failure takes precedence over
@@ -3974,21 +3892,6 @@ UnitTest::~UnitTest() {
   delete impl_;
 }
 
-// Pushes a trace defined by SCOPED_TRACE() on to the per-thread
-// Google Test trace stack.
-void UnitTest::PushGTestTrace(const internal::TraceInfo& trace)
-    GTEST_LOCK_EXCLUDED_(mutex_) {
-  internal::MutexLock lock(&mutex_);
-  impl_->gtest_trace_stack().push_back(trace);
-}
-
-// Pops a trace from the per-thread Google Test trace stack.
-void UnitTest::PopGTestTrace()
-    GTEST_LOCK_EXCLUDED_(mutex_) {
-  internal::MutexLock lock(&mutex_);
-  impl_->gtest_trace_stack().pop_back();
-}
-
 namespace internal {
 
 UnitTestImpl::UnitTestImpl(UnitTest* parent)
@@ -3998,16 +3901,12 @@ UnitTestImpl::UnitTestImpl(UnitTest* parent)
 # pragma warning(disable:4355)            // Temporarily disables warning 4355
                                          // (using this in initializer).
       default_global_test_part_result_reporter_(this),
-      default_per_thread_test_part_result_reporter_(this),
 # pragma warning(pop)                     // Restores the warning state again.
 #else
       default_global_test_part_result_reporter_(this),
-      default_per_thread_test_part_result_reporter_(this),
 #endif  // _MSC_VER
       global_test_part_result_repoter_(
           &default_global_test_part_result_reporter_),
-      per_thread_test_part_result_reporter_(
-          &default_per_thread_test_part_result_reporter_),
 #if GTEST_HAS_PARAM_TEST
       parameterized_test_registry_(),
       parameterized_tests_registered_(false),

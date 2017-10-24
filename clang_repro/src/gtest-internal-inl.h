@@ -524,13 +524,6 @@ class GTEST_API_ UnitTestImpl {
   void SetGlobalTestPartResultReporter(
       TestPartResultReporterInterface* reporter);
 
-  // Returns the test part result reporter for the current thread.
-  TestPartResultReporterInterface* GetTestPartResultReporterForCurrentThread();
-
-  // Sets the test part result reporter for the current thread.
-  void SetTestPartResultReporterForCurrentThread(
-      TestPartResultReporterInterface* reporter);
-
   // Gets the number of successful test cases.
   int successful_test_case_count() const;
 
@@ -747,14 +740,6 @@ class GTEST_API_ UnitTestImpl {
   // before/after the tests are run.
   std::vector<Environment*>& environments() { return environments_; }
 
-  // Getters for the per-thread Google Test trace stack.
-  std::vector<TraceInfo>& gtest_trace_stack() {
-    return *(gtest_trace_stack_.pointer());
-  }
-  const std::vector<TraceInfo>& gtest_trace_stack() const {
-    return gtest_trace_stack_.get();
-  }
-
 #if GTEST_HAS_DEATH_TEST
   void InitDeathTestSubprocessControlInfo() {
     internal_run_death_test_flag_.reset(ParseInternalRunDeathTestFlag());
@@ -827,18 +812,12 @@ class GTEST_API_ UnitTestImpl {
 
   // The default test part result reporters.
   DefaultGlobalTestPartResultReporter default_global_test_part_result_reporter_;
-  DefaultPerThreadTestPartResultReporter
-      default_per_thread_test_part_result_reporter_;
 
   // Points to (but doesn't own) the global test part result reporter.
   TestPartResultReporterInterface* global_test_part_result_repoter_;
 
   // Protects read and write access to global_test_part_result_reporter_.
   internal::Mutex global_test_part_result_reporter_mutex_;
-
-  // Points to (but doesn't own) the per-thread test part result reporter.
-  internal::ThreadLocal<TestPartResultReporterInterface*>
-      per_thread_test_part_result_reporter_;
 
   // The vector of environments that need to be set-up/torn-down
   // before/after the tests are run.
@@ -920,9 +899,6 @@ class GTEST_API_ UnitTestImpl {
   internal::scoped_ptr<InternalRunDeathTestFlag> internal_run_death_test_flag_;
   internal::scoped_ptr<internal::DeathTestFactory> death_test_factory_;
 #endif  // GTEST_HAS_DEATH_TEST
-
-  // A per-thread stack of traces created by the SCOPED_TRACE() macro.
-  internal::ThreadLocal<std::vector<TraceInfo> > gtest_trace_stack_;
 
   // The value of GTEST_FLAG(catch_exceptions) at the moment RunAllTests()
   // starts.

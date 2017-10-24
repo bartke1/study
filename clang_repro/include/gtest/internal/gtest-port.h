@@ -483,8 +483,6 @@
 #if GTEST_HAS_PTHREAD
 // gtest-port.h guarantees to #include <pthread.h> when GTEST_HAS_PTHREAD is
 // true.
-# include <pthread.h>  // NOLINT
-
 // For timespec and nanosleep, used below.
 # include <time.h>  // NOLINT
 #endif
@@ -1423,116 +1421,6 @@ class GTestMutexLock {
 
 typedef GTestMutexLock MutexLock;
 
-// Helpers for ThreadLocal.
-
-// pthread_key_create() requires DeleteThreadLocalValue() to have
-// C-linkage.  Therefore it cannot be templatized to access
-// ThreadLocal<T>.  Hence the need for class
-// ThreadLocalValueHolderBase.
-class ThreadLocalValueHolderBase {
- public:
-  virtual ~ThreadLocalValueHolderBase() {}
-};
-
-// Called by pthread to delete thread-local data stored by
-// pthread_setspecific().
-extern "C" inline void DeleteThreadLocalValue(void* value_holder) {
-  delete static_cast<ThreadLocalValueHolderBase*>(value_holder);
-}
-
-// Implements thread-local storage on pthreads-based systems.
-//
-//   // Thread 1
-//   ThreadLocal<int> tl(100);  // 100 is the default value for each thread.
-//
-//   // Thread 2
-//   tl.set(150);  // Changes the value for thread 2 only.
-//   EXPECT_EQ(150, tl.get());
-//
-//   // Thread 1
-//   EXPECT_EQ(100, tl.get());  // In thread 1, tl has the original value.
-//   tl.set(200);
-//   EXPECT_EQ(200, tl.get());
-//
-// The template type argument T must have a public copy constructor.
-// In addition, the default ThreadLocal constructor requires T to have
-// a public default constructor.
-//
-// An object managed for a thread by a ThreadLocal instance is deleted
-// when the thread exits.  Or, if the ThreadLocal instance dies in
-// that thread, when the ThreadLocal dies.  It's the user's
-// responsibility to ensure that all other threads using a ThreadLocal
-// have exited when it dies, or the per-thread objects for those
-// threads will not be deleted.
-//
-// Google Test only uses global ThreadLocal objects.  That means they
-// will die after main() has returned.  Therefore, no per-thread
-// object managed by Google Test will be leaked as long as all threads
-// using Google Test have exited when main() returns.
-template <typename T>
-class ThreadLocal {
- public:
-  ThreadLocal() : key_(CreateKey()),
-                  default_() {}
-  explicit ThreadLocal(const T& value) : key_(CreateKey()),
-                                         default_(value) {}
-
-  ~ThreadLocal() {
-    // Destroys the managed object for the current thread, if any.
-    DeleteThreadLocalValue(pthread_getspecific(key_));
-
-    // Releases resources associated with the key.  This will *not*
-    // delete managed objects for other threads.
-    GTEST_CHECK_POSIX_SUCCESS_(pthread_key_delete(key_));
-  }
-
-  T* pointer() { return GetOrCreateValue(); }
-  const T* pointer() const { return GetOrCreateValue(); }
-  const T& get() const { return *pointer(); }
-  void set(const T& value) { *pointer() = value; }
-
- private:
-  // Holds a value of type T.
-  class ValueHolder : public ThreadLocalValueHolderBase {
-   public:
-    explicit ValueHolder(const T& value) : value_(value) {}
-
-    T* pointer() { return &value_; }
-
-   private:
-    T value_;
-    GTEST_DISALLOW_COPY_AND_ASSIGN_(ValueHolder);
-  };
-
-  static pthread_key_t CreateKey() {
-    pthread_key_t key;
-    // When a thread exits, DeleteThreadLocalValue() will be called on
-    // the object managed for that thread.
-    GTEST_CHECK_POSIX_SUCCESS_(
-        pthread_key_create(&key, &DeleteThreadLocalValue));
-    return key;
-  }
-
-  T* GetOrCreateValue() const {
-    ThreadLocalValueHolderBase* const holder =
-        static_cast<ThreadLocalValueHolderBase*>(pthread_getspecific(key_));
-    if (holder != NULL) {
-      return CheckedDowncastToActualType<ValueHolder>(holder)->pointer();
-    }
-
-    ValueHolder* const new_holder = new ValueHolder(default_);
-    ThreadLocalValueHolderBase* const holder_base = new_holder;
-    GTEST_CHECK_POSIX_SUCCESS_(pthread_setspecific(key_, holder_base));
-    return new_holder->pointer();
-  }
-
-  // A key pthreads uses for looking up per-thread values.
-  const pthread_key_t key_;
-  const T default_;  // The default value for each thread.
-
-  GTEST_DISALLOW_COPY_AND_ASSIGN_(ThreadLocal);
-};
-
 # define GTEST_IS_THREADSAFE 1
 
 #else  // GTEST_HAS_PTHREAD
@@ -1561,19 +1449,6 @@ class GTestMutexLock {
 };
 
 typedef GTestMutexLock MutexLock;
-
-template <typename T>
-class ThreadLocal {
- public:
-  ThreadLocal() : value_() {}
-  explicit ThreadLocal(const T& value) : value_(value) {}
-  T* pointer() { return &value_; }
-  const T* pointer() const { return &value_; }
-  const T& get() const { return value_; }
-  void set(const T& value) { value_ = value; }
- private:
-  T value_;
-};
 
 // The above synchronization primitives have dummy implementations.
 // Therefore Google Test is not thread-safe.
