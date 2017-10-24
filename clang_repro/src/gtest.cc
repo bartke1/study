@@ -1948,17 +1948,12 @@ bool Test::HasNonfatalFailure() {
 
 // Constructs a TestInfo object. It assumes ownership of the test factory
 // object.
-TestInfo::TestInfo(const std::string& a_test_case_name,
-                   const std::string& a_name,
-                   const char* a_type_param,
-                   const char* a_value_param,
-                   internal::TypeId fixture_class_id,
-                   internal::TestFactoryBase* factory)
-    : test_case_name_(a_test_case_name),
-      name_(a_name),
-      type_param_(a_type_param ? new std::string(a_type_param) : NULL),
-      value_param_(a_value_param ? new std::string(a_value_param) : NULL),
-      fixture_class_id_(fixture_class_id),
+TestInfo::TestInfo(internal::TestFactoryBase* factory)
+    : test_case_name_(""),
+      name_(""),
+      type_param_(0),
+      value_param_(0),
+      fixture_class_id_(0),
       should_run_(false),
       is_disabled_(false),
       matches_filter_(false),
@@ -1989,7 +1984,7 @@ namespace internal {
 //                     ownership of the factory object.
 TestInfo* MakeAndRegisterTestInfo(TestFactoryBase* factory)
 {
-  UnitTest::GetInstance()->impl()->AddTestInfo(new TestInfo("", "", 0, 0, 0, factory));
+  UnitTest::GetInstance()->impl()->AddTestInfo(new TestInfo(factory));
   return 0;
 }
 
