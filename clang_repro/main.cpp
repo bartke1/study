@@ -1,5 +1,4 @@
 #include <cstring>
-#include <stdint.h>
 
 struct X
 {
