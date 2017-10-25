@@ -1,10 +1,11 @@
 #include <cstring>
+#include <stdint.h>
 
 struct X
 {
-    char x[66289] __attribute__((aligned(16)));
+    char x[4143 * 16 + 1] __attribute__((aligned(16)));
 
-    X()
+    void crashme()
     {
         std::memset(x, 0, 16);
     }
@@ -12,5 +13,6 @@ struct X
 
 int main()
 {
-    new X[2];
+    X* x = new X[2];
+    x->crashme();
 }

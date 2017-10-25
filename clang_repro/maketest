@@ -7,3 +7,5 @@ CLANG=clang++-3.8
 
 ${CLANG} -m32 -fstack-protector -std=c++98 -g -O0 *.cpp && echo "should pass" && ./a.out
 ${CLANG} -m32 -fstack-protector-all -std=c++98 -g -O0 *.cpp && echo "should fail" && ./a.out
+
+objdump -S a.out | grep "^ 8048531"
