@@ -4,18 +4,6 @@
 #include "foo_library_mock.hpp"
 #include "function_mocks.hpp"
 
-DECLARE_FMOCK(foo, void, int);
-DEFINE_FMOCK(foo, void, int);
-
-DECLARE_FMOCK(foo, void);
-DEFINE_FMOCK(foo, void);
-
-DECLARE_FMOCK(foo, void, float);
-DEFINE_FMOCK(foo, void, float);
-
-DECLARE_FMOCK(foo, void, int, int);
-DEFINE_FMOCK(foo, void, int, int);
-
 int main(int argc, char **argv)
 {
     ::testing::InitGoogleTest(&argc, argv);
@@ -25,7 +13,9 @@ int main(int argc, char **argv)
 class SutTest : public ::testing::Test {
 };
 
-
+INSTALL_FMOCK(foo, void);
+INSTALL_FMOCK(foo, void, float);
+INSTALL_FMOCK(foo, void, int, int);
 
 TEST_F(SutTest, Dupa)
 {
