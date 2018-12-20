@@ -3,6 +3,7 @@
 //#define _MOCK_SUFFIX _fmock
 
 #define FMOCK(NAME) NAME ## _MOCK_SUFFIX
+#define FMOCK_T(NAME, RET, ...) FMOCK(NAME)<RET(__VA_ARGS__)>
 
 #define _GET_NTH_ARG(_1, _2, _3, _4, N, ...) N
 #define COUNT_VARARGS(...) _GET_NTH_ARG(__VA_ARGS__, 4, 3, 2, 1)
@@ -20,7 +21,7 @@
 template<typename T>\
 struct FMOCK(NAME);\
 template<>\
-struct foo_MOCK_SUFFIX<void(int)>\
+struct FMOCK(NAME)<RET(PARAM1)>\
 {\
     FMOCK(NAME)()\
     {\
@@ -34,13 +35,13 @@ struct foo_MOCK_SUFFIX<void(int)>\
 \
     MOCK_METHOD1(NAME, RET(PARAM1));\
 \
-    static FMOCK(NAME)<void(int)>* obj;\
+    static FMOCK(NAME)<RET(PARAM1)>* obj;\
 }
 
 #define DEFINE_FMOCK1(NAME,RET,PARAM1) \
-FMOCK(NAME)* FMOCK(NAME)::obj;\
+FMOCK(NAME)<RET(PARAM1)>* FMOCK(NAME)<RET(PARAM1)>::obj = nullptr;\
 \
-void NAME(int x)\
+RET NAME(PARAM1 x)\
 {\
-    FMOCK(NAME)::obj->NAME(x);\
+    FMOCK(NAME)<RET(PARAM1)>::obj->NAME(x);\
 }
