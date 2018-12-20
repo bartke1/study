@@ -10,46 +10,12 @@ DEFINE_FMOCK(foo, void, int);
 DECLARE_FMOCK(foo, void, float);
 DEFINE_FMOCK(foo, void, float);
 
-//template<typename X>
-//struct foo_MOCK_SUFFIX;
-//
-//template<>
-//struct foo_MOCK_SUFFIX<void(int)>
-//{
-//    foo_MOCK_SUFFIX()
-//    {
-//        obj = this;
-//    }
-//
-//    virtual ~foo_MOCK_SUFFIX()
-//    {
-//        obj = nullptr;
-//    }
-//
-//    MOCK_METHOD1(foo, void(int));
-//
-//    static foo_MOCK_SUFFIX<void(int)>* obj;
-//};
-//
-//foo_MOCK_SUFFIX<void(int)>* foo_MOCK_SUFFIX<void(int)>::obj = nullptr;
+DECLARE_FMOCK(foo, void);
+DEFINE_FMOCK(foo, void);
 
-//template<>
-//foo_MOCK_SUFFIX<void(float)>* foo_MOCK_SUFFIX<void(float)>::obj = nullptr;
+//DECLARE_FMOCK(foo, void, int, int);
+//DEFINE_FMOCK(foo, void);
 
-//void foo(int x)
-//{
-//    foo_MOCK_SUFFIX<void(int)>::obj->foo(x);
-//}
-
-//void foo(float x)
-//{
-//    foo_MOCK_SUFFIX<void(float)>::obj->foo(x);
-//}
-
-//DECLARE_FMOCK(foo, void, float);
-//DEFINE_FMOCK(foo);
-
-//MOCK_METHOD1(foo, void(), dupa);
 
 int main(int argc, char **argv)
 {
@@ -66,8 +32,11 @@ TEST_F(SutTest, Dupa)
 {
     FMOCK_T(foo, void, int) x;
     FMOCK_T(foo, void, float) y;
+    FMOCK_T(foo, void) z;
     EXPECT_CALL(x, foo(3)).Times(2);
     sut(2, 3);
     EXPECT_CALL(y, foo(2.1f)).Times(1);
     foo(2.1f);
+    EXPECT_CALL(z, foo()).Times(1);
+    foo();
 }

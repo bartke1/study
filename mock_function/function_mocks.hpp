@@ -17,6 +17,27 @@
 
 //#define _GET_ARGS_BUT_FIRST(first, ...) __VA_ARGS__
 
+#define DECLARE_FMOCK0(NAME,RET) \
+template<typename T>\
+struct FMOCK(NAME);\
+template<>\
+struct FMOCK(NAME)<RET()>\
+{\
+    FMOCK(NAME)()\
+    {\
+        obj = this;\
+    }\
+\
+    virtual ~FMOCK(NAME)()\
+    {\
+        obj = nullptr;\
+    }\
+\
+    MOCK_METHOD0(NAME, RET());\
+\
+    static FMOCK(NAME)<RET()>* obj;\
+}
+
 #define DECLARE_FMOCK1(NAME,RET,PARAM1) \
 template<typename T>\
 struct FMOCK(NAME);\
@@ -37,6 +58,15 @@ struct FMOCK(NAME)<RET(PARAM1)>\
 \
     static FMOCK(NAME)<RET(PARAM1)>* obj;\
 }
+
+#define DEFINE_FMOCK0(NAME,RET) \
+FMOCK(NAME)<RET()>* FMOCK(NAME)<RET()>::obj = nullptr;\
+\
+RET NAME()\
+{\
+    FMOCK(NAME)<RET()>::obj->NAME();\
+}
+
 
 #define DEFINE_FMOCK1(NAME,RET,PARAM1) \
 FMOCK(NAME)<RET(PARAM1)>* FMOCK(NAME)<RET(PARAM1)>::obj = nullptr;\
