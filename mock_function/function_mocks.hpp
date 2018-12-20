@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <gmock/gmock.h>
 
 #define FMOCK_T(name, ret_t, ...) _FMOCK_NAME(name)<ret_t(__VA_ARGS__)>
@@ -37,7 +38,7 @@
     \
         virtual ~_FMOCK_NAME(name)()\
         {\
-            obj = nullptr;\
+            obj = NULL;\
         }\
     \
         _GET_MOCK_METHOD(name, __VA_ARGS__);\
@@ -46,7 +47,7 @@
     }
 
 #define DEFINE_FMOCK(name, ...) \
-    _FMOCK_NAME(name)<_GET_FUN_TYPE(__VA_ARGS__)>* _FMOCK_NAME(name)<_GET_FUN_TYPE(__VA_ARGS__)>::obj = nullptr;\
+    _FMOCK_NAME(name)<_GET_FUN_TYPE(__VA_ARGS__)>* _FMOCK_NAME(name)<_GET_FUN_TYPE(__VA_ARGS__)>::obj = NULL;\
     \
     _GET_FIRST(__VA_ARGS__) name(_GET_IN_ARGS(__VA_ARGS__))\
     \
