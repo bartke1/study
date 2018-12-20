@@ -5,7 +5,12 @@
 #include "function_mocks.hpp"
 
 DECLARE_FMOCK(foo, void, int);
-DEFINE_FMOCK(foo, void, int);
+DEFINE_FMOCK(foo);
+
+DECLARE_FMOCK(foo, void, float);
+DEFINE_FMOCK(foo);
+
+//MOCK_METHOD1(foo, void(), dupa);
 
 int main(int argc, char **argv)
 {
@@ -23,4 +28,5 @@ TEST_F(SutTest, Dupa)
     FMOCK(foo) x;
     EXPECT_CALL(x, foo(3)).Times(2);
     sut(2, 3);
+//    bar();
 }
