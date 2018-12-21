@@ -13,9 +13,9 @@ int main(int argc, char **argv)
 class SutTest : public ::testing::Test {
 };
 
-INSTALL_FMOCK(foo, void);
-INSTALL_FMOCK(foo, void, float);
-INSTALL_FMOCK(foo, void, int, int);
+PREPARE_FMOCK(foo, void);
+PREPARE_FMOCK(foo, void, float);
+PREPARE_FMOCK(foo, void, int, int);
 
 TEST_F(SutTest, Dupa)
 {

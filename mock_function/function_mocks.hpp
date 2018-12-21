@@ -1,9 +1,24 @@
 #include <stdio.h>
 #include <gmock/gmock.h>
 
+/*
+ * This file contains macros to facilitate mocking free functions using gmock:
+ * - DECLARE_FMOCK(function_name, return_arg_type, input_arg_type...)
+ *      - declares structures needed by the mock; typically put in mock library header file, eg.
+ *
+ * - DEFINE_FMOCK(function_name, return_arg_type, input_arg_type...)
+ *      - defines global objects needed by the mock; typically put in mock library cpp file
+ *
+ * - PREPARE_FMOCK(function_name, return_arg_type, input_arg_type...)
+ *      - does both above steps; typically put in test cpp file
+ *
+ * - FMOCK_T(function_name, return_arg_type, input_arg_type...)
+ *      - provides type of gmock object; once created function is mocked (until deletion of the object)
+ */
+
 #define FMOCK_T(name, ret_t, ...) _FMOCK_NAME(name)<ret_t(__VA_ARGS__)>
 
-#define INSTALL_FMOCK(...) \
+#define PREPARE_FMOCK(...) \
     DECLARE_FMOCK(__VA_ARGS__);\
     DEFINE_FMOCK(__VA_ARGS__);
 
