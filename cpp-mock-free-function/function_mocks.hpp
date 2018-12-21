@@ -52,21 +52,25 @@
         _FMOCK_NAME(name)<_GET_FUN_TYPE(__VA_ARGS__)>::obj->name(_GET_OUT_ARGS(__VA_ARGS__));\
     }
 
-#define _GET_OVERRIDE(_1, _2, _3, name, ...) name
+#define _GET_OVERRIDE(_1, _2, _3, _4, _5, name, ...) name
 #define _GET_MOCK_METHOD(name, ...) \
-    _GET_OVERRIDE(__VA_ARGS__ , MOCK_METHOD2, MOCK_METHOD1, MOCK_METHOD0)(\
+    _GET_OVERRIDE(__VA_ARGS__ , MOCK_METHOD4, MOCK_METHOD3, MOCK_METHOD2, MOCK_METHOD1, MOCK_METHOD0)(\
         name, _GET_FIRST(__VA_ARGS__)(_GET_ALL_BUT_FIRST(__VA_ARGS__))\
     )
 #define _GET_IN_ARGS(...) \
-    _GET_OVERRIDE(__VA_ARGS__, _GET_IN_PARAM2, _GET_IN_PARAM1, _GET_IN_PARAM0)(__VA_ARGS__)
+    _GET_OVERRIDE(__VA_ARGS__, _GET_IN_PARAM4, _GET_IN_PARAM3, _GET_IN_PARAM2, _GET_IN_PARAM1, _GET_IN_PARAM0)(__VA_ARGS__)
 #define _GET_OUT_ARGS(...) \
-    _GET_OVERRIDE(__VA_ARGS__, _GET_OUT_PARAM2, _GET_OUT_PARAM1, _GET_OUT_PARAM0)(__VA_ARGS__)
+    _GET_OVERRIDE(__VA_ARGS__, _GET_OUT_PARAM4, _GET_OUT_PARAM3, _GET_OUT_PARAM2, _GET_OUT_PARAM1, _GET_OUT_PARAM0)(__VA_ARGS__)
 #define _GET_IN_PARAM0(_)
 #define _GET_IN_PARAM1(_, T1) T1 p1
 #define _GET_IN_PARAM2(_, T1, T2) T1 p1, T2 p2
+#define _GET_IN_PARAM3(_, T1, T2, T3) T1 p1, T2 p2, T3 p3
+#define _GET_IN_PARAM4(_, T1, T2, T3, T4) T1 p1, T2 p2, T3 p3, T4 p4
 #define _GET_OUT_PARAM0(_)
 #define _GET_OUT_PARAM1(_, T1) p1
 #define _GET_OUT_PARAM2(_, T1, T2) p1, p2
+#define _GET_OUT_PARAM3(_, T1, T2, T3) p1, p2, p3
+#define _GET_OUT_PARAM4(_, T1, T2, T3, T4) p1, p2, p3, p4
 
 #define _FMOCK_NAME(NAME) NAME##_FMOCK_IDENT
 #define _GET_FIRST(first, ...) first
